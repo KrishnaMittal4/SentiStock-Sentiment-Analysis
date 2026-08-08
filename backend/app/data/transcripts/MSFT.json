@@ -1,0 +1,33 @@
+{
+  "symbol": "MSFT",
+  "company_name": "Microsoft Corporation",
+  "quarter": "Q4",
+  "year": 2026,
+  "date": "2026-07-28",
+  "content": [
+    {
+      "speaker": "Satya Nadella (CEO)",
+      "text": "Thank you, and welcome. We closed out our fiscal year with a strong quarter, driven by commercial cloud revenue of $36.8 billion, up 19% year-over-year. Our Microsoft Cloud platform continues to deliver significant value, enabling customers to maximize their IT spend while building the platforms of the future. We are seeing incredible momentum in our AI services, particularly Azure OpenAI service, which has grown to over 60,000 customers. GitHub Copilot is now the most widely adopted developer tool in the world, with over 1.8 million paid subscribers. We are focused on winning the AI platform shift and driving operating leverage."
+    },
+    {
+      "speaker": "Amy Hood (CFO)",
+      "text": "Thanks, Satya. Our revenue for the quarter was $64.7 billion, up 15% year-over-year, ahead of our expectations. Operating income was $27.9 billion, up 15%. Diluted earnings per share was $2.95, up 10%. We experienced some capacity constraints on our AI infrastructure, which slightly held back Azure's growth rate this quarter. We are aggressively investing in capital expenditure, which reached $19 billion this quarter, to expand our datacenter footprint and meet the massive backlog of AI customer demand. For the next quarter, we expect double-digit revenue growth to continue, though margins will reflect our heavy infrastructure investments."
+    },
+    {
+      "speaker": "Mark Murphy (Analyst)",
+      "text": "Satya, can you help us understand the customer demand profile for Microsoft 365 Copilot? Is the adoption rate meeting your expectations, and are you seeing seat expansion within existing enterprise customers?"
+    },
+    {
+      "speaker": "Satya Nadella (CEO)",
+      "text": "Yes, Mark. Adoption is exceeding our internal targets. We are seeing a very healthy pipeline of seat expansion. Enterprise customers are realizing real productivity gains, with time savings averaging over 20 minutes per day per user. The ROI is very clear, which is driving land-and-expand dynamics inside our largest accounts. We are also seeing strong pull-through into Windows and Security, which is very encouraging."
+    },
+    {
+      "speaker": "Keith Weiss (Analyst)",
+      "text": "Amy, on capital expenditure: you mentioned $19 billion this quarter. How should we think about the return profile of this investment, and is there any flexibility to dial it back if macroeconomic demand softens?"
+    },
+    {
+      "speaker": "Amy Hood (CFO)",
+      "text": "Keith, the vast majority of our capital spend is dedicated to cloud infrastructure, specifically servers and networking gear, which is heavily demand-driven. We only build out data centers where we see strong customer commitments. So the return profile remains very high, and the payback period is consistent with historical cloud cycles. If demand signals change, we have the flexibility to adjust server procurement, but right now the demand remains incredibly high and outstrips our capacity."
+    }
+  ]
+}

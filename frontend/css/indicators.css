@@ -1,0 +1,599 @@
+/* ============================================================
+   SentiStock AI — Technical Indicators (indicators.css)
+   ------------------------------------------------------------
+   Color language: the rest of the app uses cyan (--color-accent)
+   for "live data" chrome and emerald/red/amber for bullish/
+   bearish/neutral sentiment. Technical indicators are a different
+   kind of signal — price-derived, not opinion-derived — so this
+   section gets its own accent (violet) throughout. The intent is
+   that a glance at color alone tells you which analytical layer
+   you're looking at: sentiment (cyan/emerald) vs. technicals
+   (violet), even before reading a single label.
+   ============================================================ */
+
+:root {
+  --color-quant: #8b5cf6;
+  --color-quant-bg: rgba(139, 92, 246, 0.12);
+  --color-quant-border: rgba(139, 92, 246, 0.3);
+}
+
+/* ----------------------------------------------------------
+   Section-level grid — 4 cards, collapsing responsively
+   ---------------------------------------------------------- */
+.indicators-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-6);
+}
+
+@media (max-width: 1100px) {
+  .indicators-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .indicators-grid { grid-template-columns: 1fr; }
+}
+
+.indicator-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.indicator-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.indicator-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ----------------------------------------------------------
+   Info tooltip — one-line "what does this number mean"
+   explanation on each indicator card. CSS-only (no JS needed):
+   the tooltip is a hidden <span> revealed on hover/focus of its
+   sibling button, positioned absolutely so it never affects
+   layout. Trust-building detail from fintech UX research: raw
+   numbers without context ("RSI: 61.3") read as arbitrary to
+   anyone who isn't already fluent in technical analysis.
+   ---------------------------------------------------------- */
+.info-tooltip {
+  position: relative;
+  display: inline-flex;
+}
+
+.info-tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid var(--border-default);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  line-height: 1;
+  cursor: help;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.info-tooltip-trigger:hover,
+.info-tooltip-trigger:focus-visible {
+  color: var(--color-quant);
+  border-color: var(--color-quant-border);
+  outline: none;
+}
+
+.info-tooltip-bubble {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  width: 220px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  z-index: var(--z-tooltip);
+}
+
+.info-tooltip-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--bg-tertiary);
+}
+
+.info-tooltip-trigger:hover + .info-tooltip-bubble,
+.info-tooltip-trigger:focus-visible + .info-tooltip-bubble {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 480px) {
+  .info-tooltip-bubble {
+    width: 180px;
+    left: auto;
+    right: -8px;
+    transform: translateY(4px);
+  }
+  .info-tooltip-trigger:hover + .info-tooltip-bubble,
+  .info-tooltip-trigger:focus-visible + .info-tooltip-bubble {
+    transform: translateY(0);
+  }
+}
+
+.indicator-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.indicator-engine-badge {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+/* Empty / insufficient-data state, shared by all four cards */
+.indicator-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  padding: var(--space-6) var(--space-2);
+  min-height: 120px;
+}
+
+/* ----------------------------------------------------------
+   RSI gauge card — big numeral + zone badge, ECharts gauge
+   handles the arc itself
+   ---------------------------------------------------------- */
+.rsi-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.rsi-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.rsi-zone-badge {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.rsi-zone-badge.overbought { background: var(--color-bearish-bg); color: var(--color-bearish); border: 1px solid var(--color-bearish-border); }
+.rsi-zone-badge.oversold   { background: var(--color-bullish-bg); color: var(--color-bullish); border: 1px solid var(--color-bullish-border); }
+.rsi-zone-badge.neutral    { background: var(--color-quant-bg);   color: var(--color-quant);   border: 1px solid var(--color-quant-border); }
+
+.rsi-gauge-mount {
+  height: 90px;
+  width: 100%;
+}
+
+/* ----------------------------------------------------------
+   MACD card — mini bar+line chart, plus signed value readout
+   ---------------------------------------------------------- */
+.macd-readout {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-end;
+}
+
+.macd-readout-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Histogram is the number that actually signals a momentum shift —
+   MACD and Signal are supporting context for it, not equals. Previously
+   all three were the same size and competed for attention; the eye had
+   nowhere to land first. */
+.macd-readout-item.is-primary {
+  order: -1;
+}
+
+.macd-readout-item.is-primary .macd-readout-value {
+  font-size: var(--text-2xl);
+}
+
+.macd-readout-item:not(.is-primary) .macd-readout-value {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.macd-readout-item:not(.is-primary) .macd-readout-value.positive,
+.macd-readout-item:not(.is-primary) .macd-readout-value.negative {
+  color: var(--text-secondary);
+}
+
+.macd-readout-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.macd-readout-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.macd-readout-value.positive { color: var(--color-bullish); }
+.macd-readout-value.negative { color: var(--color-bearish); }
+
+.macd-chart-mount {
+  height: 90px;
+  width: 100%;
+}
+
+/* ----------------------------------------------------------
+   Moving averages card — price-vs-MA ribbon, DOM-based
+   (deliberately not a chart: this is a comparison table, not
+   a trend, so rows of labeled values communicate faster)
+   ---------------------------------------------------------- */
+.ma-ribbon {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+  justify-content: center;
+}
+
+.ma-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.ma-row-label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.ma-row-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ma-row-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.ma-row-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ma-row-badge.above { background: var(--color-bullish-bg); color: var(--color-bullish); }
+.ma-row-badge.below { background: var(--color-bearish-bg); color: var(--color-bearish); }
+
+/* ----------------------------------------------------------
+   Bollinger Bands card — horizontal position bar
+   ---------------------------------------------------------- */
+.bb-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.bb-labels-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.bb-track {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-bullish) 0%, var(--color-quant) 50%, var(--color-bearish) 100%);
+  opacity: 0.35;
+}
+
+.bb-marker {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 3px solid var(--color-quant);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 3px var(--bg-secondary), 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: left var(--transition-slow);
+}
+
+.bb-percent-label {
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.bb-percent-label strong {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+/* ----------------------------------------------------------
+   Price quote header — sits above the candlestick chart,
+   real-time context (day range, prev close, open) at a glance
+   ---------------------------------------------------------- */
+.quote-header {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.quote-header-price-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.quote-header-ticker {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.quote-header-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.quote-header-price {
+  font-family: var(--font-mono);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.quote-header-change {
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.quote-header-change.positive { color: var(--color-bullish); }
+.quote-header-change.negative { color: var(--color-bearish); }
+
+.quote-header-range-block {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.quote-header-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.quote-header-range-track {
+  position: relative;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+}
+
+.quote-header-range-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-bearish), var(--color-neutral), var(--color-bullish));
+  opacity: 0.4;
+}
+
+.quote-header-range-marker {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2px solid var(--bg-secondary);
+  transform: translate(-50%, -50%);
+  transition: left var(--transition-slow);
+}
+
+.quote-header-stats {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.quote-header-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quote-header-stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.quote-header-stat-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .quote-header { flex-direction: column; align-items: stretch; gap: var(--space-4); }
+  .quote-header-stats { flex-wrap: wrap; gap: var(--space-4); }
+}
+
+/* ----------------------------------------------------------
+   AI Market Brief card
+   ---------------------------------------------------------- */
+.ai-brief-card {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--color-quant-border);
+}
+
+/* ::after here, not ::before — .card::before (components.css) now owns
+   the top-edge gradient bar shared by every card. This card's own
+   corner-wash decoration moves to ::after so the two effects layer
+   instead of one silently overwriting the other. */
+.ai-brief-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--color-quant-bg) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.ai-brief-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ai-brief-icon {
+  color: var(--color-quant);
+  font-size: var(--text-lg);
+}
+
+.ai-brief-text {
+  position: relative;
+  font-size: var(--text-base);
+  line-height: 1.7;
+  color: var(--text-primary);
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+.ai-brief-text.is-loading {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.ai-brief-text.is-error {
+  color: var(--text-muted);
+}
+
+.ai-brief-disclaimer {
+  position: relative;
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-3);
+}
+
+#ai-brief-model-badge {
+  font-family: var(--font-mono);
+  background: var(--color-quant-bg);
+  color: var(--color-quant);
+  border: 1px solid var(--color-quant-border);
+}
+
+/* Groups the model badge and Download Report button on the same side
+   of .card-header, so adding the button doesn't push it to the
+   opposite end of the header's space-between row. */
+.ai-brief-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+#download-report-btn {
+  position: relative;
+}
+
+#download-report-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  pointer-events: none;
+}
+
+#download-report-btn.is-error {
+  border-color: var(--color-bearish-border);
+  color: var(--color-bearish);
+}
+
+@media (max-width: 640px) {
+  .ai-brief-header-actions {
+    flex-wrap: wrap;
+  }
+}

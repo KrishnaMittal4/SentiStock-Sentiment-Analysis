@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentiStock AI — Stock Market Sentiment Analysis Dashboard</title>
+  <meta name="description" content="Analyze financial news, earnings calls, and social media to extract investor sentiment signals that influence stock price movements.">
+  <meta property="og:title" content="SentiStock AI — Stock Market Sentiment Analysis">
+  <meta property="og:description" content="AI-powered sentiment analysis dashboard for informed portfolio management decisions.">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+  <!-- Fonts -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-mono/style.css">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/charts.css">
+  <link rel="stylesheet" href="css/indicators.css">
+</head>
+<body>
+  <!-- Skip to content link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ========== TOP NAVIGATION ========== -->
+  <nav class="top-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="/" class="nav-logo" aria-label="SentiStock AI Home">
+          <span class="logo-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M3 17L9 11L13 15L21 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="21" cy="7" r="2.5" fill="var(--color-accent)"/>
+            </svg>
+          </span>
+          <span class="logo-text">SentiStock <span class="logo-accent">AI</span></span>
+        </a>
+      </div>
+
+      <div class="nav-center">
+        <div class="search-wrapper">
+          <span class="search-icon" aria-hidden="true"></span>
+          <input
+            type="search"
+            class="search-input"
+            id="stock-search"
+            placeholder="Search ticker or company..."
+            autocomplete="off"
+            aria-label="Search stocks"
+          >
+          <kbd class="search-kbd" aria-hidden="true">/</kbd>
+          <div class="search-results" id="search-results" style="display: none;"></div>
+        </div>
+      </div>
+
+      <div class="nav-right">
+        <div class="time-range-selector" role="group" aria-label="Time range">
+          <button class="time-range-btn" data-range="1" aria-label="1 day">1D</button>
+          <button class="time-range-btn" data-range="7" aria-label="1 week">1W</button>
+          <button class="time-range-btn active" data-range="30" aria-label="1 month">1M</button>
+          <button class="time-range-btn" data-range="90" aria-label="3 months">3M</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== HERO SECTION ========== -->
+  <section class="hero-section" id="hero">
+    <div class="hero-container">
+      <div class="hero-content animate-fade-in-up">
+        <span class="hero-eyebrow">AI Powered Market Intelligence</span>
+        <h1 class="hero-title">Decode Market Sentiment.<br><span class="text-gradient">Predict Movements.</span></h1>
+        <p class="hero-description">Real-time analysis of news, social media, and earnings transcripts using advanced NLP and AI to uncover investor sentiment and market trends.</p>
+        <div class="hero-actions">
+          <button id="hero-explore-btn" class="btn btn-primary btn-lg animate-glow-pulse">Explore Dashboard <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+          <button id="hero-insights-btn" class="btn btn-outline btn-lg">View Insights</button>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll-hint animate-float" id="hero-scroll-hint">
+      <span>Scroll Down</span>
+      <svg viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+    </div>
+  </section>
+
+  <!-- ========== MARKET OVERVIEW STRIP ========== -->
+  <!-- Finnhub's free tier has no direct index endpoint, so these use
+       live /quote data for SPY/QQQ/DIA as real-price proxies for the
+       S&P 500 / NASDAQ / Dow. No per-index sentiment or sparkline — there's
+       no live source for those, so they're left out rather than faked. -->
+
+  <div class="market-strip" aria-label="Market overview">
+    <div class="market-strip-inner">
+      <div class="market-index" id="index-sp500">
+        <span class="index-name">S&P 500 (SPY)</span>
+        <span class="index-value numeric" id="sp500-value">—</span>
+        <span class="index-change numeric" id="sp500-change">—</span>
+        <span class="index-sentiment" id="sp500-sentiment" style="display:none">—</span>
+      </div>
+      <div class="market-index" id="index-nasdaq">
+        <span class="index-name">NASDAQ (QQQ)</span>
+        <span class="index-value numeric" id="nasdaq-value">—</span>
+        <span class="index-change numeric" id="nasdaq-change">—</span>
+        <span class="index-sentiment" id="nasdaq-sentiment" style="display:none">—</span>
+      </div>
+      <div class="market-index" id="index-dow">
+        <span class="index-name">DOW JONES (DIA)</span>
+        <span class="index-value numeric" id="dow-value">—</span>
+        <span class="index-change numeric" id="dow-change">—</span>
+        <span class="index-sentiment" id="dow-sentiment" style="display:none">—</span>
+      </div>
+      <div class="market-status">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span class="status-text">Market Closed</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main id="main-content" class="main-container">
+
+    <!-- === SECTION 0.2: Executive KPI Summary Widgets === -->
+    <section class="section" aria-label="Executive KPI Overview">
+      <div class="section-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+        <div>
+          <h2 class="section-title" style="margin-bottom: 2px;">Executive KPI Summary</h2>
+          <p class="section-subtitle" style="margin-bottom: 0;">Real-time multi-dimensional pulse across price, NLP sentiment, AI predictions, and market indicators.</p>
+        </div>
+        <span class="badge badge-neutral" id="summary-widgets-ticker-badge">AAPL — Apple Inc.</span>
+      </div>
+
+      <div class="kpi-widgets-grid">
+        <!-- 1. Current Price -->
+        <div class="widget-card" id="widget-current-price">
+          <div class="widget-header">
+            <span class="widget-title">Current Price</span>
+            <span class="widget-icon">💲</span>
+          </div>
+          <div class="widget-value numeric" id="w-price-value">$—</div>
+          <div class="widget-footer">
+            <span class="widget-subtext" id="w-price-sub">Market Close</span>
+            <span class="widget-badge badge-neutral" id="w-price-badge">Real-time</span>
+          </div>
+        </div>
+
+        <!-- 2. Today's Change -->
+        <div class="widget-card" id="widget-today-change">
+          <div class="widget-header">
+            <span class="widget-title">Today's Change</span>
+            <span class="widget-icon">📈</span>
+          </div>
+          <div class="widget-value numeric" id="w-change-value">—</div>
+          <div class="widget-footer">
+            <span class="widget-subtext" id="w-change-sub">Vs Prev Close</span>
+            <span class="widget-badge badge-neutral" id="w-change-badge">—</span>
+          </div>
+        </div>
+
+        <!-- 3. News Sentiment -->
+        <div class="widget-card" id="widget-news-sentiment">
+          <div class="widget-header">
+            <span class="widget-title">News Sentiment</span>
+            <span class="widget-icon">📰</span>
+          </div>
+          <div class="widget-value numeric" id="w-news-value">—</div>
+          <div class="widget-footer">
+            <span class="widget-subtext" id="w-news-sub">FinBERT NLP</span>
+            <span class="widget-badge badge-neutral" id="w-news-badge">Analyzing</span>
+          </div>
+        </div>
+
+        <!-- 4. Reddit Sentiment -->
+        <div class="widget-card" id="widget-reddit-sentiment">
+          <div class="widget-header">
+            <span class="widget-title">Reddit Sentiment</span>
+            <span class="widget-icon">💬</span>
+          </div>
+          <div class="widget-value numeric" id="w-reddit-value">—</div>
+          <div class="widget-footer">
+            <span class="widget-subtext" id="w-reddit-sub">r/stocks · r/wsb</span>
+            <span class="widget-badge badge-neutral" id="w-reddit-badge">Analyzing</span>
+          </div>
+        </div>
+
+        <!-- 5. Transcript Sentiment -->
+        <div class="widget-card" id="widget-transcript-sentiment">
+          <div class="widget-header">
+            <span class="widget-title">Transcript Sentiment</span>
+            <span class="widget-icon">🎙️</span>
+          </div>
+          <div class="widget-value numeric" id="w-transcript-value">—</div>
+          <div class="widget-footer">
+            <span class="widget-subtext" id="w-transcript-sub">Earnings Call</span>
+            <span class="widget-badge badge-neutral" id="w-transcript-badge">—</span>
+          </div>
+        </div>
+
+        <!-- 6. Market Mood -->
+        <div class="widget-card" id="widget-market-mood">
+          <div class="widget-header">
+            <span class="widget-title">Market Mood</span>
+            <span class="widget-icon">🌡️</span>
+          </div>
+          <div class="widget-value numeric" id="w-mood-value">—</div>
+          <div class="widget-footer">
+            <span class="widget-subtext" id="w-mood-sub">MMI Composite</span>
+            <span class="widget-badge badge-neutral" id="w-mood-badge">—</span>
+          </div>
+        </div>
+
+        <!-- 7. Prediction -->
+        <div class="widget-card" id="widget-prediction">
+          <div class="widget-header">
+            <span class="widget-title">ML Prediction</span>
+            <span class="widget-icon">🤖</span>
+          </div>
+          <div class="widget-value" id="w-prediction-value">—</div>
+          <div class="widget-footer">
+            <span class="widget-subtext" id="w-prediction-sub">Next Day Dir</span>
+            <span class="widget-badge badge-neutral" id="w-prediction-badge">0% Prob</span>
+          </div>
+        </div>
+
+        <!-- 8. Recommendation -->
+        <div class="widget-card" id="widget-recommendation">
+          <div class="widget-header">
+            <span class="widget-title">Recommendation</span>
+            <span class="widget-icon">🎯</span>
+          </div>
+          <div class="widget-value" id="w-rec-value">HOLD</div>
+          <div class="widget-footer">
+            <span class="widget-subtext" id="w-rec-sub">Multi-Factor Engine</span>
+            <span class="widget-badge badge-neutral" id="w-rec-badge">Score: 0.00</span>
+          </div>
+        </div>
+
+        <!-- 9. Correlation -->
+        <div class="widget-card" id="widget-correlation">
+          <div class="widget-header">
+            <span class="widget-title">Correlation (r)</span>
+            <span class="widget-icon">🔗</span>
+          </div>
+          <div class="widget-value numeric" id="w-corr-value">—</div>
+          <div class="widget-footer">
+            <span class="widget-subtext" id="w-corr-sub">Price vs Sentiment</span>
+            <span class="widget-badge badge-neutral" id="w-corr-badge">—</span>
+          </div>
+        </div>
+
+        <!-- 10. Technical Indicators -->
+        <div class="widget-card" id="widget-technical-indicators">
+          <div class="widget-header">
+            <span class="widget-title">Technical Indicators</span>
+            <span class="widget-icon">📊</span>
+          </div>
+          <div class="widget-value" id="w-tech-value" style="font-size: var(--text-md);">—</div>
+          <div class="widget-footer">
+            <span class="widget-subtext" id="w-tech-sub">RSI · MACD · MA</span>
+            <span class="widget-badge badge-neutral" id="w-tech-badge">—</span>
+          </div>
+        </div>
+
+        <!-- 11. Confidence -->
+        <div class="widget-card" id="widget-confidence">
+          <div class="widget-header">
+            <span class="widget-title">System Confidence</span>
+            <span class="widget-icon">🛡️</span>
+          </div>
+          <div class="widget-value numeric" id="w-confidence-value">—</div>
+          <div class="widget-footer">
+            <span class="widget-subtext" id="w-confidence-sub">FinBERT & ML</span>
+            <span class="widget-badge badge-neutral" id="w-confidence-badge">—</span>
+          </div>
+        </div>
+
+        <!-- 12. Recent News -->
+        <div class="widget-card widget-card-wide" id="widget-recent-news">
+          <div class="widget-header">
+            <span class="widget-title">Recent News</span>
+            <span class="widget-icon">⚡</span>
+          </div>
+          <div class="widget-news-headline" id="w-news-headline">Loading latest headline...</div>
+          <div class="widget-footer">
+            <span class="widget-subtext" id="w-news-source">Finnhub</span>
+            <span class="widget-badge badge-neutral" id="w-news-tag">Latest</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === SECTION 0.5: AI Market Brief === -->
+    <!-- Groq (llama-3.3-70b-versatile) synthesizes the quote, technical
+         indicators, sentiment trend, and real headlines below into one
+         plain-English paragraph. Separate from FinBERT: FinBERT scores
+         individual headlines, this reads everything together. Optional —
+         if GROQ_API_KEY isn't set on the backend, this card explains that
+         plainly instead of showing broken content. -->
+    <section class="section" aria-label="AI market brief">
+      <div class="card ai-brief-card">
+        <div class="card-header">
+          <div class="ai-brief-title-row">
+            <span class="ai-brief-icon" aria-hidden="true">✦</span>
+            <h2 class="card-title">AI market brief</h2>
+          </div>
+          <div class="ai-brief-header-actions">
+            <span class="badge badge-neutral" id="ai-brief-model-badge">—</span>
+            <button type="button" class="btn btn-ghost btn-sm" id="download-report-btn">
+              <span id="download-report-label">Download Report</span>
+            </button>
+          </div>
+        </div>
+        <p class="ai-brief-text" id="ai-brief-text">Generating brief…</p>
+        <p class="ai-brief-disclaimer">AI-generated commentary synthesizing the real data on this page — not financial advice.</p>
+      </div>
+    </section>
+
+    <!-- === SECTION 0.8: Buy / Hold / Sell Recommendation === -->
+    <section class="section" aria-label="Trade recommendation">
+      <div class="recommendation-container card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: var(--space-3);">
+            <span class="recommendation-header-icon" aria-hidden="true">🎯</span>
+            <div>
+              <h2 class="card-title" style="margin: 0;">Trade recommendation</h2>
+              <p class="section-subtitle" style="margin: 0; font-size: var(--text-xs);">Rule-based multi-factor engine synthesizing RSI, MACD, EMA, Bollinger Bands, News &amp; Reddit Sentiment.</p>
+            </div>
+          </div>
+          <span class="badge badge-neutral" id="recommendation-ticker-badge">—</span>
+        </div>
+
+        <div class="recommendation-body">
+          <!-- Hero Badge & Confidence Row -->
+          <div class="recommendation-hero-row">
+            <div class="recommendation-badge-wrapper">
+              <span class="recommendation-badge badge-hold" id="recommendation-badge">HOLD</span>
+              <div class="recommendation-score-sub" id="recommendation-score-label">Composite Score: 0.00</div>
+            </div>
+
+            <div class="recommendation-confidence-box">
+              <div class="confidence-header">
+                <span class="confidence-title">Confidence Level</span>
+                <span class="confidence-value" id="recommendation-confidence-val">0%</span>
+              </div>
+              <div class="confidence-progress-bar">
+                <div class="confidence-progress-fill" id="recommendation-confidence-bar" style="width: 0%;"></div>
+              </div>
+              <span class="confidence-label-badge" id="recommendation-confidence-badge">Analyzing…</span>
+            </div>
+          </div>
+
+          <!-- Executive Summary Paragraph -->
+          <div class="recommendation-summary-box">
+            <h3 class="summary-box-title">Synthesis &amp; Key Drivers</h3>
+            <p class="summary-box-text" id="recommendation-summary-text">Evaluating market signals and indicator rules…</p>
+          </div>
+
+          <!-- 6-Grid Breakdown of Inputs -->
+          <div class="recommendation-breakdown-grid" id="recommendation-breakdown-grid">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === SECTION 0.9: ML Price Movement Prediction === -->
+    <section class="section" aria-label="ML Price Movement Prediction">
+      <div class="ml-prediction-container card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3);">
+          <div style="display: flex; align-items: center; gap: var(--space-3);">
+            <span class="ml-header-icon" aria-hidden="true" style="font-size: 1.5rem;">🤖</span>
+            <div>
+              <h2 class="card-title" style="margin: 0;">ML price movement prediction</h2>
+              <p class="section-subtitle" style="margin: 0; font-size: var(--text-xs);">
+                Supervised Machine Learning predicting Next Trading Day Direction (UP / DOWN) with probabilities, metrics, &amp; feature importances.
+              </p>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: var(--space-3);">
+            <label for="ml-model-select" style="font-size: var(--text-xs); color: var(--color-text-secondary); font-weight: 500;">Model Algorithm:</label>
+            <select id="ml-model-select" class="dropdown" style="padding: 4px 10px; font-size: var(--text-xs);">
+              <option value="rf" selected>Random Forest</option>
+              <option value="xgboost">XGBoost Classifier</option>
+              <option value="lightgbm">LightGBM Classifier</option>
+            </select>
+            <span class="badge badge-neutral" id="ml-ticker-badge">—</span>
+          </div>
+        </div>
+
+        <div class="ml-prediction-body" style="padding: var(--space-4);">
+          <!-- Top Row: Prediction Direction Badge + Probability Meter -->
+          <div class="ml-hero-grid" style="display: grid; grid-template-columns: minmax(260px, 1fr) minmax(300px, 2fr); gap: var(--space-6); margin-bottom: var(--space-6);">
+            
+            <!-- Left: Glowing Direction Banner -->
+            <div class="ml-direction-card" id="ml-direction-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--space-6); background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-lg); text-align: center;">
+              <span class="ml-direction-target" style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 1px; color: var(--color-text-secondary); font-weight: 600;">Next Day Direction</span>
+              <div class="ml-direction-badge" id="ml-direction-badge" style="font-size: 2.8rem; font-weight: 800; color: #10b981; margin: var(--space-2) 0; display: flex; align-items: center; gap: 8px;">
+                <span id="ml-direction-arrow">⬆️</span> <span id="ml-direction-text">UP</span>
+              </div>
+              <div class="ml-confidence-sub" id="ml-confidence-sub" style="font-size: var(--text-sm); font-weight: 600; color: var(--color-text-primary);">
+                Probability: <span id="ml-primary-prob-val" class="numeric">74.2%</span>
+              </div>
+              <span class="badge badge-success" id="ml-confidence-badge" style="margin-top: var(--space-2);">High Confidence</span>
+              <div style="margin-top: var(--space-3); font-size: var(--text-xs); color: var(--color-text-muted);" id="ml-prediction-date-label">Target Date: Next Trading Day</div>
+            </div>
+
+            <!-- Right: Win Probability Progress Meter & Model Performance Metrics -->
+            <div style="display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-4);">
+              <!-- Probability Split Bar -->
+              <div style="background: var(--color-bg-subtle); padding: var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <span style="font-weight: 600; font-size: var(--text-sm); color: #10b981;">UP Probability: <span id="ml-prob-up-val" class="numeric">74.2%</span></span>
+                  <span style="font-weight: 600; font-size: var(--text-sm); color: #ef4444;">DOWN Probability: <span id="ml-prob-down-val" class="numeric">25.8%</span></span>
+                </div>
+                <div style="height: 14px; width: 100%; background: #ef4444; border-radius: 7px; overflow: hidden; display: flex;">
+                  <div id="ml-prob-up-bar" style="height: 100%; width: 74.2%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.6s ease;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: var(--text-xs); color: var(--color-text-muted);">
+                  <span>0% Bullish</span>
+                  <span>50% Decision Threshold</span>
+                  <span>100% Bullish</span>
+                </div>
+              </div>
+
+              <!-- Model Metrics 4-Grid -->
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3);">
+                <div class="metric-box" style="background: var(--color-bg-subtle); padding: var(--space-3); border-radius: var(--radius-md); border: 1px solid var(--color-border); text-align: center;">
+                  <span style="display: block; font-size: var(--text-xs); color: var(--color-text-muted);">Test Accuracy</span>
+                  <span id="ml-metric-accuracy" class="numeric" style="font-size: 1.25rem; font-weight: 700; color: var(--color-text-primary);">—</span>
+                </div>
+                <div class="metric-box" style="background: var(--color-bg-subtle); padding: var(--space-3); border-radius: var(--radius-md); border: 1px solid var(--color-border); text-align: center;">
+                  <span style="display: block; font-size: var(--text-xs); color: var(--color-text-muted);">ROC AUC</span>
+                  <span id="ml-metric-roc" class="numeric" style="font-size: 1.25rem; font-weight: 700; color: var(--color-text-primary);">—</span>
+                </div>
+                <div class="metric-box" style="background: var(--color-bg-subtle); padding: var(--space-3); border-radius: var(--radius-md); border: 1px solid var(--color-border); text-align: center;">
+                  <span style="display: block; font-size: var(--text-xs); color: var(--color-text-muted);">Precision</span>
+                  <span id="ml-metric-precision" class="numeric" style="font-size: 1.25rem; font-weight: 700; color: var(--color-text-primary);">—</span>
+                </div>
+                <div class="metric-box" style="background: var(--color-bg-subtle); padding: var(--space-3); border-radius: var(--radius-md); border: 1px solid var(--color-border); text-align: center;">
+                  <span style="display: block; font-size: var(--text-xs); color: var(--color-text-muted);">F1 Score</span>
+                  <span id="ml-metric-f1" class="numeric" style="font-size: 1.25rem; font-weight: 700; color: var(--color-text-primary);">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Executive Reasoning Box -->
+          <div style="background: var(--color-bg-subtle); border-left: 4px solid var(--color-accent); padding: var(--space-4); border-radius: var(--radius-md); margin-bottom: var(--space-6);">
+            <h4 style="margin: 0 0 var(--space-2) 0; font-size: var(--text-sm); font-weight: 600;">Model Reasoning &amp; Feature Influence Synthesis</h4>
+            <p id="ml-summary-reasoning-text" style="margin: 0; font-size: var(--text-xs); line-height: 1.5; color: var(--color-text-secondary);">
+              Analyzing technical indicators, volume momentum, price action, and sentiment scores...
+            </p>
+          </div>
+
+          <!-- Feature Importances & Input Summary Grid -->
+          <div style="display: grid; grid-template-columns: minmax(300px, 1.2fr) minmax(300px, 1fr); gap: var(--space-6);">
+            
+            <!-- Left: Top Feature Importances -->
+            <div>
+              <h3 style="font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-3); display: flex; align-items: center; justify-content: space-between;">
+                <span>Feature Importance Ranking</span>
+                <span style="font-size: var(--text-xs); font-weight: 400; color: var(--color-text-muted);">Classifier Model Weights</span>
+              </h3>
+              <div id="ml-feature-importances-list" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Right: Recent Backtest Evaluation Log -->
+            <div>
+              <h3 style="font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-3); display: flex; align-items: center; justify-content: space-between;">
+                <span>Out-of-Sample Test Evaluations</span>
+                <span style="font-size: var(--text-xs); font-weight: 400; color: var(--color-text-muted);">Recent Test Set History</span>
+              </h3>
+              <div style="overflow-x: auto; background: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+                <table style="width: 100%; border-collapse: collapse; font-size: var(--text-xs); text-align: left;">
+                  <thead>
+                    <tr style="border-bottom: 1px solid var(--color-border); color: var(--color-text-muted);">
+                      <th style="padding: 8px 12px;">Date</th>
+                      <th style="padding: 8px 12px;">Predicted</th>
+                      <th style="padding: 8px 12px;">Actual</th>
+                      <th style="padding: 8px 12px;">P(UP)</th>
+                      <th style="padding: 8px 12px;">Result</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ml-historical-eval-tbody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- === SECTION 1: Primary Dashboard Grid === -->
+    <section class="section" aria-label="Sentiment overview">
+      <h2 class="section-title">Market sentiment overview</h2>
+      <p class="section-subtitle">Cross-market sentiment aggregates, real-time momentum gauge, and long-term trend timeline.</p>
+      <div class="dashboard-grid">
+      <!-- Left: Sentiment Gauge -->
+      <div class="card gauge-card">
+        <div class="card-header">
+          <h2 class="card-title">Market sentiment</h2>
+          <span class="badge badge-neutral" id="gauge-confidence">—</span>
+        </div>
+        <div class="gauge-container">
+          <div id="sentiment-gauge" class="chart-container" role="img" aria-label="Overall market sentiment gauge"></div>
+        </div>
+        <div class="gauge-footer">
+          <div class="gauge-label" id="gauge-label">Analyzing...</div>
+          <div class="gauge-sublabel" id="gauge-sublabel">Based on 0 sources</div>
+        </div>
+      </div>
+
+      <!-- Center: Sentiment Trend Chart -->
+      <div class="card trend-card">
+        <div class="card-header">
+          <h2 class="card-title">Sentiment trend</h2>
+          <div class="card-actions">
+            <select id="trend-ticker-select" class="dropdown" aria-label="Select ticker for trend">
+              <!-- Populated by App.populateSelectors() with real tickers -->
+            </select>
+          </div>
+        </div>
+        <div id="sentiment-trend" class="chart-container chart-lg" role="img" aria-label="Sentiment trend over time"></div>
+      </div>
+
+      <!-- Right: Quick Stats -->
+      <div class="stats-column">
+        <div class="metric-card" id="metric-bullish">
+          <div class="metric-icon bullish" aria-hidden="true"></div>
+          <div class="metric-content">
+            <span class="metric-value numeric" id="top-bullish-score">—</span>
+            <span class="metric-label">Most bullish headline</span>
+            <span class="metric-ticker" id="top-bullish-ticker">—</span>
+          </div>
+        </div>
+        <div class="metric-card" id="metric-bearish">
+          <div class="metric-icon bearish" aria-hidden="true"></div>
+          <div class="metric-content">
+            <span class="metric-value numeric" id="top-bearish-score">—</span>
+            <span class="metric-label">Most bearish headline</span>
+            <span class="metric-ticker" id="top-bearish-ticker">—</span>
+          </div>
+        </div>
+        <div class="metric-card" id="metric-volume">
+          <div class="metric-icon volume" aria-hidden="true"></div>
+          <div class="metric-content">
+            <span class="metric-value numeric" id="sentiment-volume">—</span>
+            <span class="metric-label">Total mentions</span>
+            <span class="metric-change numeric" id="volume-change">—</span>
+          </div>
+        </div>
+        <div class="metric-card" id="metric-confidence">
+          <div class="metric-icon confidence" aria-hidden="true"></div>
+          <div class="metric-content">
+            <span class="metric-value numeric" id="model-confidence">—</span>
+            <span class="metric-label">Model confidence</span>
+            <span class="metric-sublabel" id="model-confidence-caption">FinBERT NLP</span>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- === SECTION 1.5: Market Mood Index (MMI) === -->
+    <section class="section" aria-label="Market mood index">
+      <h2 class="section-title">Market Mood Index (MMI)</h2>
+      <p class="section-subtitle">Comprehensive composite market mood indicator computed from News sentiment, Reddit sentiment, and Technical indicators.</p>
+      
+      <div class="two-col-grid two-col-wide-left">
+        <!-- Left Card: MMI Gauge Chart -->
+        <div class="card gauge-card">
+          <div class="card-header">
+            <h2 class="card-title">Market Mood Gauge</h2>
+            <span class="badge badge-neutral" id="mmi-category-badge">—</span>
+          </div>
+          <div class="gauge-container">
+            <div id="mmi-gauge" class="chart-container" role="img" aria-label="Market Mood Index gauge chart"></div>
+          </div>
+          <div class="gauge-footer" style="text-align: center; padding-bottom: var(--space-4);">
+            <div class="gauge-label" id="mmi-status-label">MMI Score: —</div>
+            <div class="gauge-sublabel" id="mmi-sublabel">0–20 Extreme Fear · 20–40 Fear · 40–60 Neutral · 60–80 Greed · 80–100 Extreme Greed</div>
+          </div>
+        </div>
+
+        <!-- Right Column: MMI Component Sub-Scores -->
+        <div class="stats-column" style="display: flex; flex-direction: column; gap: var(--space-4);">
+          <div class="metric-card" id="metric-mmi-news">
+            <div class="metric-icon bullish" aria-hidden="true"></div>
+            <div class="metric-content">
+              <span class="metric-value numeric" id="mmi-news-score">—</span>
+              <span class="metric-label">News sentiment score</span>
+              <span class="metric-sublabel" id="mmi-news-caption">FinBERT NLP</span>
+            </div>
+          </div>
+
+          <div class="metric-card" id="metric-mmi-reddit">
+            <div class="metric-icon reddit" aria-hidden="true"></div>
+            <div class="metric-content">
+              <span class="metric-value numeric" id="mmi-reddit-score">—</span>
+              <span class="metric-label">Reddit sentiment score</span>
+              <span class="metric-sublabel" id="mmi-reddit-caption">r/stocks · r/investing · r/wsb</span>
+            </div>
+          </div>
+
+          <div class="metric-card" id="metric-mmi-technical">
+            <div class="metric-icon confidence" aria-hidden="true"></div>
+            <div class="metric-content">
+              <span class="metric-value numeric" id="mmi-technical-score">—</span>
+              <span class="metric-label">Technical indicators score</span>
+              <span class="metric-sublabel" id="mmi-technical-caption">RSI · %B · Moving Averages · MACD</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- === SECTION 2: Price Chart with Sentiment Overlay === -->
+    <section class="section" aria-label="Price and sentiment correlation">
+      <h2 class="section-title">Price & sentiment correlation</h2>
+      <p class="section-subtitle">Correlation of underlying asset price actions with AI-extracted sentiment signals.</p>
+      <div class="card">
+        <div class="card-header" style="justify-content: flex-end;">
+          <div class="card-actions">
+            <select id="price-ticker-select" class="dropdown" aria-label="Select ticker for price chart">
+              <!-- Populated by JS -->
+            </select>
+          </div>
+        </div>
+        <div id="quote-header" class="quote-header"></div>
+        <div id="price-chart-container" class="price-chart-container" role="img" aria-label="Stock price candlestick chart with sentiment overlay"></div>
+        <div class="chart-legend" id="price-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#10b981"></span>Bullish candle</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>Bearish candle</span>
+          <span class="legend-item"><span class="legend-line" style="background:#10b981"></span>Sentiment score</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- === SECTION 2.5: Technical Indicators === -->
+    <section class="section" aria-label="Technical indicators">
+      <h2 class="section-title">Technical indicators</h2>
+      <p class="section-subtitle">Price-derived signals computed server-side from real yfinance history — RSI, MACD, moving averages, and Bollinger Bands. A separate analytical layer from the sentiment cards above: these read the chart, not the news.</p>
+      <div class="indicators-grid">
+
+        <!-- RSI -->
+        <div class="card indicator-card">
+          <div class="indicator-card-header">
+            <span class="indicator-title-row">
+              <span class="indicator-title">RSI (14)</span>
+              <span class="info-tooltip">
+                <button type="button" class="info-tooltip-trigger" aria-label="What is RSI?">i</button>
+                <span class="info-tooltip-bubble">Relative Strength Index measures how fast and how much price has moved recently. Above 70 typically signals overbought, below 30 oversold.</span>
+              </span>
+            </span>
+            <span class="indicator-engine-badge" id="rsi-engine-badge">—</span>
+          </div>
+          <div class="rsi-value-row">
+            <span class="rsi-value numeric" id="rsi-value">—</span>
+            <span class="rsi-zone-badge neutral" id="rsi-zone-badge">—</span>
+          </div>
+          <div class="rsi-gauge-mount" id="rsi-gauge-mount"></div>
+          <div class="indicator-empty" id="rsi-empty-state" style="display:none">Not enough price history yet — needs 20+ trading days.</div>
+        </div>
+
+        <!-- MACD -->
+        <div class="card indicator-card">
+          <div class="indicator-card-header">
+            <span class="indicator-title-row">
+              <span class="indicator-title">MACD (12, 26, 9)</span>
+              <span class="info-tooltip">
+                <button type="button" class="info-tooltip-trigger" aria-label="What is MACD?">i</button>
+                <span class="info-tooltip-bubble">Moving Average Convergence Divergence tracks momentum. A positive histogram (MACD above Signal) suggests upward momentum building; negative suggests it's fading.</span>
+              </span>
+            </span>
+          </div>
+          <div class="macd-readout" id="macd-readout"></div>
+          <div class="macd-chart-mount" id="macd-chart-mount"></div>
+          <div class="indicator-empty" id="macd-empty-state" style="display:none">Not enough price history yet — needs 20+ trading days.</div>
+        </div>
+
+        <!-- Moving Averages -->
+        <div class="card indicator-card">
+          <div class="indicator-card-header">
+            <span class="indicator-title-row">
+              <span class="indicator-title">Price vs. moving averages</span>
+              <span class="info-tooltip">
+                <button type="button" class="info-tooltip-trigger" aria-label="What are moving averages?">i</button>
+                <span class="info-tooltip-bubble">Averages smooth out day-to-day noise. Price trading above its moving averages is generally read as a bullish trend, below as bearish.</span>
+              </span>
+            </span>
+          </div>
+          <div class="ma-ribbon" id="ma-ribbon"></div>
+        </div>
+
+        <!-- Bollinger Bands -->
+        <div class="card indicator-card">
+          <div class="indicator-card-header">
+            <span class="indicator-title-row">
+              <span class="indicator-title">Bollinger Bands (20, 2σ)</span>
+              <span class="info-tooltip">
+                <button type="button" class="info-tooltip-trigger" aria-label="What are Bollinger Bands?">i</button>
+                <span class="info-tooltip-bubble">Bands widen and narrow with volatility. Price near the upper band can signal overextension; near the lower band, a potential bounce — %B shows exactly where within the range.</span>
+              </span>
+            </span>
+          </div>
+          <div class="bb-card-body" id="bb-card-body"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- === SECTION 3: News Sentiment Feed === -->
+    <section class="section" aria-label="News sentiment analysis">
+      <h2 class="section-title">Financial news sentiment analysis</h2>
+      <p class="section-subtitle">Real-time media tracking powered by FinBERT (BERT fine-tuned on financial text), run server-side on the FastAPI backend.</p>
+      <div class="two-col-grid two-col-wide-left">
+        <!-- News Feed -->
+        <div class="card">
+          <div class="card-header" style="justify-content: flex-end;">
+            <div class="card-actions">
+              <select id="news-filter" class="dropdown" aria-label="Filter news by sentiment">
+                <option value="all">All sentiment</option>
+                <option value="positive">Positive only</option>
+                <option value="negative">Negative only</option>
+                <option value="neutral">Neutral only</option>
+              </select>
+            </div>
+          </div>
+          <div class="news-feed" id="news-feed" role="feed" aria-label="News articles">
+            <!-- Populated by JS -->
+            <div class="skeleton skeleton-news" aria-hidden="true">
+              <div class="skeleton-line skeleton-line-title"></div>
+              <div class="skeleton-line skeleton-line-meta"></div>
+              <div class="skeleton-line skeleton-line-short"></div>
+            </div>
+            <div class="skeleton skeleton-news" aria-hidden="true">
+              <div class="skeleton-line skeleton-line-title"></div>
+              <div class="skeleton-line skeleton-line-meta"></div>
+              <div class="skeleton-line skeleton-line-short"></div>
+            </div>
+            <div class="skeleton skeleton-news" aria-hidden="true">
+              <div class="skeleton-line skeleton-line-title"></div>
+              <div class="skeleton-line skeleton-line-meta"></div>
+              <div class="skeleton-line skeleton-line-short"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sentiment Distribution + Source Breakdown -->
+        <div class="stacked-cards">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Sentiment distribution</h2>
+            </div>
+            <div id="sentiment-distribution" class="chart-container chart-sm" role="img" aria-label="News sentiment distribution chart"></div>
+            <div class="distribution-stats" id="distribution-stats">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Source breakdown</h2>
+            </div>
+            <div id="source-breakdown" class="chart-container chart-md" role="img" aria-label="Sentiment source breakdown donut chart"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === SECTION 3.5: Reddit Sentiment Analysis === -->
+    <section class="section" aria-label="Reddit sentiment analysis">
+      <h2 class="section-title">Reddit sentiment &amp; trending discussions</h2>
+      <p class="section-subtitle">Real-time social sentiment extraction across r/stocks, r/investing, and r/wallstreetbets using FinBERT NLP on post titles and bodies.</p>
+      
+      <!-- Top Metrics Bar for Reddit & Merged Sentiment -->
+      <div class="stats-column" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4);">
+        <div class="metric-card" id="metric-reddit-sentiment">
+          <div class="metric-icon reddit" aria-hidden="true"></div>
+          <div class="metric-content">
+            <span class="metric-value numeric" id="reddit-avg-sentiment">—</span>
+            <span class="metric-label">Reddit avg sentiment</span>
+            <span class="metric-sublabel" id="reddit-sentiment-label">r/stocks · r/investing · r/wsb</span>
+          </div>
+        </div>
+
+        <div class="metric-card" id="metric-reddit-posts">
+          <div class="metric-icon volume" aria-hidden="true"></div>
+          <div class="metric-content">
+            <span class="metric-value numeric" id="reddit-posts-count">—</span>
+            <span class="metric-label">Posts analyzed</span>
+            <span class="metric-sublabel">Titles &amp; Bodies</span>
+          </div>
+        </div>
+
+        <div class="metric-card" id="metric-reddit-confidence">
+          <div class="metric-icon confidence" aria-hidden="true"></div>
+          <div class="metric-content">
+            <span class="metric-value numeric" id="reddit-confidence">—</span>
+            <span class="metric-label">Model confidence</span>
+            <span class="metric-sublabel">FinBERT Probability</span>
+          </div>
+        </div>
+
+        <div class="metric-card" id="metric-merged-sentiment">
+          <div class="metric-icon bullish" id="merged-sentiment-icon" aria-hidden="true"></div>
+          <div class="metric-content">
+            <span class="metric-value numeric" id="merged-sentiment-score">—</span>
+            <span class="metric-label">Merged news + reddit sentiment</span>
+            <span class="metric-sublabel" id="merged-sentiment-label">Combined Signal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Reddit Content Grid -->
+      <div class="two-col-grid two-col-wide-left">
+        <!-- Trending Discussions Feed -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Trending discussions</h2>
+            <span class="badge badge-neutral">FinBERT Scored</span>
+          </div>
+          <div class="news-feed" id="reddit-feed" role="feed" aria-label="Reddit trending discussions">
+            <div class="skeleton skeleton-news" aria-hidden="true">
+              <div class="skeleton-line skeleton-line-title"></div>
+              <div class="skeleton-line skeleton-line-meta"></div>
+              <div class="skeleton-line skeleton-line-short"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subreddit Breakdown + News vs Reddit Comparison -->
+        <div class="stacked-cards">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Subreddit breakdown</h2>
+            </div>
+            <div class="card-body" style="padding: var(--space-4);">
+              <div id="subreddit-breakdown-list" style="display: flex; flex-direction: column; gap: var(--space-3);">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">News vs. Reddit comparison</h2>
+            </div>
+            <div id="sentiment-compare-chart" class="chart-container chart-sm" role="img" aria-label="News vs Reddit sentiment comparison"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === SECTION 3.7: Historical Sentiment Storage === -->
+    <section class="section" aria-label="Historical sentiment storage">
+      <h2 class="section-title">Historical sentiment storage</h2>
+      <p class="section-subtitle">Persistent SQLite database table storing daily Ticker, Date, News Sentiment, Reddit Sentiment, Combined Sentiment, Closing Price, and Predictions while avoiding duplicate entries.</p>
+      
+      <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <h2 class="card-title">Database records (<span id="historical-storage-ticker-label">—</span>)</h2>
+          <span class="badge badge-neutral" id="historical-storage-count-badge">0 Entries</span>
+        </div>
+        <div class="card-body" style="padding: var(--space-4); overflow-x: auto;">
+          <table class="table" id="historical-storage-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--color-border); font-size: var(--text-xs); color: var(--color-text-secondary); text-transform: uppercase;">
+                <th style="padding: var(--space-3) var(--space-4);">Date</th>
+                <th style="padding: var(--space-3) var(--space-4);">Ticker</th>
+                <th style="padding: var(--space-3) var(--space-4);">News Sentiment</th>
+                <th style="padding: var(--space-3) var(--space-4);">Reddit Sentiment</th>
+                <th style="padding: var(--space-3) var(--space-4);">Combined Sentiment</th>
+                <th style="padding: var(--space-3) var(--space-4);">Closing Price</th>
+                <th style="padding: var(--space-3) var(--space-4);">Prediction Signal</th>
+              </tr>
+            </thead>
+            <tbody id="historical-storage-tbody">
+              <tr>
+                <td colspan="7" style="padding: var(--space-6); text-align: center; color: var(--color-text-muted);">
+                  Loading historical sentiment database records...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- === SECTION 4: Earnings Call Transcript Analysis === -->
+    <section class="section" aria-label="Earnings call transcript analysis">
+
+      <h2 class="section-title">Earnings call transcript analysis</h2>
+      <p class="section-subtitle">Real-time sentiment extraction from verbatim earnings call transcript segments using FinBERT chunk classification.</p>
+      
+      <div class="earnings-layout">
+        <!-- Left: Overview Card -->
+        <div class="card earnings-overview">
+          <div class="card-header">
+            <h2 class="card-title" id="earnings-meta-title">Overview</h2>
+          </div>
+          <div class="card-body" style="padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-4);">
+            <div class="stat-row">
+              <span class="stat-label">Quarter</span>
+              <span class="stat-row-value" id="earnings-meta-quarter">—</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Fiscal Year</span>
+              <span class="stat-row-value" id="earnings-meta-year">—</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Release Date</span>
+              <span class="stat-row-value" id="earnings-meta-date">—</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Overall Sentiment</span>
+              <span class="badge" id="earnings-meta-sentiment">—</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Avg Confidence</span>
+              <span class="stat-row-value" id="earnings-meta-confidence">—</span>
+            </div>
+            
+            <div style="margin-top: var(--space-2); display: flex; flex-direction: column; gap: var(--space-3);">
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); margin-bottom: 4px;">
+                  <span>Positive Chunks</span>
+                  <span id="earnings-pct-positive">0%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill bullish" id="earnings-bar-positive" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); margin-bottom: 4px;">
+                  <span>Neutral Chunks</span>
+                  <span id="earnings-pct-neutral">0%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill neutral" id="earnings-bar-neutral" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); margin-bottom: 4px;">
+                  <span>Negative Chunks</span>
+                  <span id="earnings-pct-negative">0%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill bearish" id="earnings-bar-negative" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center: Sentiment Timeline Chart -->
+        <div class="card earnings-chart-col">
+          <div class="card-header">
+            <h2 class="card-title">Sentiment timeline</h2>
+          </div>
+          <div id="earnings-timeline" class="chart-container chart-md" role="img" aria-label="Earnings call sentiment timeline chart"></div>
+        </div>
+
+        <!-- Right: Phrases/Quotes List -->
+        <div class="card earnings-phrases">
+          <div class="card-header">
+            <h2 class="card-title">Key transcript insights</h2>
+          </div>
+          <div class="card-body" style="padding: var(--space-4);">
+            <div class="phrases-list" id="earnings-highlights" class="scroll-shadow-y" style="max-height: 290px; overflow-y: auto;">
+              <!-- Populated by JS -->
+              <div class="empty-state">
+                <p class="empty-state-message">Select a ticker to load transcript insights.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === SECTION 6: Price vs Sentiment Correlation === -->
+    <section class="section" aria-label="Price and sentiment correlation analysis">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-2);">
+        <div>
+          <h2 class="section-title" style="margin-bottom: 4px;">Price vs. sentiment correlation</h2>
+          <p class="section-subtitle" style="margin-bottom: 0;">Statistical relationship analysis between stock closing prices and historical market sentiment.</p>
+        </div>
+        <div class="card-actions" style="display: flex; align-items: center; gap: var(--space-2);">
+          <label for="correlation-window-select" style="font-size: var(--text-xs); color: var(--color-text-secondary); font-weight: 500;">Rolling Window:</label>
+          <select id="correlation-window-select" class="dropdown" aria-label="Select rolling correlation window">
+            <option value="7" selected>7-Day Window</option>
+            <option value="14">14-Day Window</option>
+            <option value="30">30-Day Window</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Metric Cards Row -->
+      <div class="stats-column" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4);">
+        <div class="metric-card" id="metric-corr-pearson">
+          <div class="metric-icon bullish" id="corr-pearson-icon" aria-hidden="true"></div>
+          <div class="metric-content">
+            <span class="metric-value numeric" id="corr-pearson-value">—</span>
+            <span class="metric-label">Pearson correlation (r)</span>
+            <span class="metric-sublabel" id="corr-pearson-badge">Analyzing…</span>
+          </div>
+        </div>
+
+        <div class="metric-card" id="metric-corr-rsquared">
+          <div class="metric-icon confidence" aria-hidden="true"></div>
+          <div class="metric-content">
+            <span class="metric-value numeric" id="corr-rsquared-value">—</span>
+            <span class="metric-label">Variance explained (R²)</span>
+            <span class="metric-sublabel">Linear Fit Strength</span>
+          </div>
+        </div>
+
+        <div class="metric-card" id="metric-corr-classification">
+          <div class="metric-icon volume" aria-hidden="true"></div>
+          <div class="metric-content">
+            <span class="metric-value numeric" id="corr-signal-class" style="font-size: var(--text-md);">—</span>
+            <span class="metric-label">Signal classification</span>
+            <span class="metric-sublabel" id="corr-sample-size">0 Trading Days</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Layout: Combined Trend + Scatter Plot -->
+      <div class="two-col-grid" style="margin-bottom: var(--space-4);">
+        <!-- Combined Price, Sentiment & Rolling Correlation Trend Graph -->
+        <div class="card">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 class="card-title">Combined price, sentiment &amp; rolling correlation</h2>
+            <span class="badge badge-neutral" id="corr-trend-ticker-badge">—</span>
+          </div>
+          <div id="correlation-combined-trend" class="chart-container chart-lg" role="img" aria-label="Combined historical price, sentiment score, and rolling correlation timeline"></div>
+          <div class="chart-legend" style="margin-top: var(--space-2); font-size: var(--text-xs); color: var(--color-text-secondary); display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap;">
+            <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>Stock Closing Price ($)</span>
+            <span class="legend-item"><span class="legend-line" style="background:#10b981"></span>Sentiment Score (-1 to +1)</span>
+            <span class="legend-item"><span class="legend-line" style="background:#8b5cf6; border-top: 2px dashed #8b5cf6;"></span>Rolling Correlation</span>
+          </div>
+        </div>
+
+        <!-- Scatter Plot -->
+        <div class="card">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 class="card-title">Sentiment vs. price scatter plot</h2>
+            <span class="badge badge-neutral" id="corr-regression-badge">Line Fit</span>
+          </div>
+          <div id="correlation-scatter" class="chart-container chart-lg" role="img" aria-label="Scatter plot of sentiment scores vs closing stock prices"></div>
+          <div class="correlation-stats" id="correlation-stats" style="margin-top: var(--space-2);">
+            <div class="stat-row">
+              <span class="stat-label">Pearson correlation</span>
+              <span class="sentiment-score numeric" id="correlation-value">—</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Interpretation</span>
+              <span id="correlation-label">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plain English Relationship Explanation Card -->
+      <div class="card" style="margin-bottom: var(--space-4);">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: var(--space-2);">
+            <span style="color: var(--color-accent); font-size: 1.2rem;" aria-hidden="true">💡</span>
+            <h2 class="card-title">Relationship explanation in plain English</h2>
+          </div>
+          <span class="badge badge-positive" id="corr-plain-badge">Statistical Synthesis</span>
+        </div>
+        <div class="card-body" style="padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-4);">
+          <!-- Summary Box -->
+          <div style="background: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--color-accent); padding: var(--space-4); border-radius: 6px;">
+            <h3 style="font-size: var(--text-sm); font-weight: 600; color: var(--color-accent); margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 0.05em;">Executive Summary</h3>
+            <p id="corr-explain-summary" style="font-size: var(--text-base); line-height: 1.6; color: var(--color-text-primary); margin: 0;">Generating relationship explanation…</p>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-4);">
+            <!-- Practical Meaning Box -->
+            <div style="background: var(--color-surface-hover); padding: var(--space-4); border-radius: 8px; border: 1px solid var(--color-border);">
+              <h4 style="font-size: var(--text-xs); font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; margin: 0 0 8px 0;">Market Mechanism &amp; Impact</h4>
+              <p id="corr-explain-practical" style="font-size: var(--text-sm); line-height: 1.55; color: var(--color-text-secondary); margin: 0;">Analyzing daily price and sentiment alignment…</p>
+            </div>
+
+            <!-- Rolling Trend Box -->
+            <div style="background: var(--color-surface-hover); padding: var(--space-4); border-radius: 8px; border: 1px solid var(--color-border);">
+              <h4 style="font-size: var(--text-xs); font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; margin: 0 0 8px 0;">Rolling Correlation Dynamics</h4>
+              <p id="corr-explain-rolling" style="font-size: var(--text-sm); line-height: 1.55; color: var(--color-text-secondary); margin: 0;">Calculating rolling correlation trends…</p>
+            </div>
+
+            <!-- Investor Takeaway Box -->
+            <div style="background: var(--color-surface-hover); padding: var(--space-4); border-radius: 8px; border: 1px solid var(--color-border);">
+              <h4 style="font-size: var(--text-xs); font-weight: 700; color: var(--color-bullish); text-transform: uppercase; margin: 0 0 8px 0;">Actionable Investor Takeaway</h4>
+              <p id="corr-explain-takeaway" style="font-size: var(--text-sm); line-height: 1.55; color: var(--color-text-secondary); margin: 0;">Synthesizing strategic guidance for traders…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Word Cloud / Top Terms -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Trending sentiment keywords &amp; phrases</h2>
+        </div>
+        <div class="card-body" style="padding: var(--space-4);">
+          <div class="word-cloud" id="word-cloud" role="img" aria-label="Word cloud of trending financial terms">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span class="footer-brand">SentiStock AI</span>
+        <span class="footer-divider" aria-hidden="true">·</span>
+        <span class="footer-copy">AI-powered market sentiment analysis</span>
+      </div>
+      <div class="footer-right">
+        <span class="footer-note">Powered by a FastAPI backend — Finnhub, yfinance &amp; FinBERT</span>
+        <span class="footer-divider" aria-hidden="true">·</span>
+        <a href="#" class="footer-link">Privacy policy</a>
+        <a href="#" class="footer-link">Terms of service</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== SCRIPTS ========== -->
+  <!-- Chart Libraries (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js" crossorigin="anonymous"></script>
+
+  <!-- Application Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/sentiment.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/price-chart.js"></script>
+  <script src="js/live-data.js"></script>
+  <script src="js/indicators.js"></script>
+  <script src="js/prediction.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+/* ============================================================
+   SentiStock AI — Design Tokens (variables.css)
+   Institutional-grade fintech design system
+   Supports dark (default) and light themes via data-theme
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   VS Code Pure Black Dark High Contrast Theme
+   ---------------------------------------------------------- */
+:root, :root[data-theme='dark'] {
+  /* Surface Colors - Pure Black Base */
+  --bg-primary: #000000;
+  --bg-secondary: #080808;
+  --bg-tertiary: #111111;
+  --bg-surface-elevated: #161616;
+  --bg-hover: #1f1f1f;
+  --bg-active: #2a2a2a;
+
+  /* Text Colors - High Contrast */
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
+  --text-muted: #737373;
+  --text-inverse: #000000;
+
+  /* Border & Glow Colors - Crisp High Contrast */
+  --border-subtle: #1c1c1c;
+  --border-default: #2d2d2d;
+  --border-highlight: #06b6d4;
+  --glow-accent: 0 0 16px rgba(6, 182, 212, 0.3);
+  --glow-bullish: 0 0 16px rgba(16, 185, 129, 0.3);
+  --glow-bearish: 0 0 16px rgba(239, 68, 68, 0.3);
+
+  /* Shadows */
+  --shadow-color: rgba(0, 0, 0, 0.9);
+  --shadow-sm: 0 1px 3px var(--shadow-color);
+  --shadow-md: 0 4px 12px var(--shadow-color);
+  --shadow-lg: 0 8px 24px var(--shadow-color);
+  --shadow-xl: 0 16px 40px var(--shadow-color);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(8, 8, 8, 0.88);
+  --glass-border: #262626;
+  --glass-blur: blur(12px);
+
+  /* Scrollbar */
+  --scrollbar-track: #000000;
+  --scrollbar-thumb: #262626;
+  --scrollbar-thumb-hover: #06b6d4;
+
+  /* Selection */
+  --selection-bg: rgba(6, 182, 212, 0.4);
+  --selection-text: #ffffff;
+}
+
+/* ----------------------------------------------------------
+   Shared Tokens (theme-agnostic)
+   Applied to :root so they're available in both themes
+   ---------------------------------------------------------- */
+:root {
+  /* Sentiment Colors */
+  --color-bullish: #10b981;
+  --color-bullish-bg: rgba(16, 185, 129, 0.12);
+  --color-bullish-border: rgba(16, 185, 129, 0.3);
+
+  --color-bearish: #ef4444;
+  --color-bearish-bg: rgba(239, 68, 68, 0.12);
+  --color-bearish-border: rgba(239, 68, 68, 0.3);
+
+  --color-neutral: #f59e0b;
+  --color-neutral-bg: rgba(245, 158, 11, 0.12);
+  --color-neutral-border: rgba(245, 158, 11, 0.3);
+
+  /* Accent — single emerald/cyan accent throughout */
+  --color-accent: #06b6d4;
+  --color-accent-hover: #0891b2;
+  --color-accent-muted: rgba(6, 182, 212, 0.15);
+
+  /* Gradients & Glows */
+  --gradient-cyber: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #10b981 100%);
+  --gradient-hero-btn: linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%);
+  --gradient-text: linear-gradient(135deg, #ffffff 30%, #a5f3fc 100%);
+  --gradient-brand: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+
+  /* Typography — Font Families */
+  --font-display: 'Outfit', 'Geist', system-ui, -apple-system, sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Geist', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+
+  /* Typography — Font Sizes */
+  --text-xs: 0.75rem;      /* 12px */
+  --text-sm: 0.8125rem;    /* 13px */
+  --text-base: 0.875rem;   /* 14px */
+  --text-lg: 1rem;         /* 16px */
+  --text-xl: 1.125rem;     /* 18px */
+  --text-2xl: 1.5rem;      /* 24px */
+  --text-3xl: 2rem;        /* 32px */
+  --text-4xl: 2.5rem;      /* 40px */
+
+  /* Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+
+  /* Z-Index Scale */
+  --z-nav: 100;
+  --z-dropdown: 200;
+  --z-modal: 300;
+  --z-tooltip: 400;
+
+  /* Layout */
+  --container-max: 1440px;
+  --nav-height: 56px;
+}

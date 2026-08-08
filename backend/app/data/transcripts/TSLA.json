@@ -1,0 +1,33 @@
+{
+  "symbol": "TSLA",
+  "company_name": "Tesla Inc.",
+  "quarter": "Q2",
+  "year": 2026,
+  "date": "2026-07-23",
+  "content": [
+    {
+      "speaker": "Elon Musk (CEO)",
+      "text": "Good afternoon, everyone. Q2 was a challenging but ultimately successful quarter. We produced over 410,000 vehicles and delivered approximately 444,000, representing a strong recovery from Q1. Our energy storage business reached record deployments of 9.4 GWh, which is growing far faster than our automotive business. We are making rapid progress on Full Self-Driving (FSD) version 12.5, which will merge city and highway stacks. We expect FSD to achieve unsupervised autonomy by next year, which will completely transform our business model. The future is autonomy, and we are leading the charge."
+    },
+    {
+      "speaker": "Vaibhav Taneja (CFO)",
+      "text": "Thank you, Elon. In Q2, our revenue was $25.5 billion, up 2% year-over-year. Operating income was $1.6 billion, representing an operating margin of 6.3%. Margins were impacted by restructuring charges, increased CapEx for AI infrastructure, and pricing actions. However, we generated positive free cash flow of $1.3 billion, which is a strong turnaround from last quarter. We continue to hold a strong cash position of $30.7 billion, allowing us to fund our aggressive AI compute expansions and product pipeline, including our next-generation low-cost vehicle."
+    },
+    {
+      "speaker": "Dan Levy (Analyst)",
+      "text": "Elon, could you provide an update on the progress of the low-cost vehicle? Are we still on track for production in early 2027, and will it be built on the new unboxed manufacturing system?"
+    },
+    {
+      "speaker": "Elon Musk (CEO)",
+      "text": "Yes, we are on track to begin production of our low-cost vehicle in early 2027. It will incorporate aspects of the unboxed system, but we've modified our approach to run on existing production lines first to ensure rapid ramp and lower risk. This will allow us to reach over 3 million vehicles of capacity quickly without building entirely new factories first. It's a pragmatic approach that gets cars to customers faster."
+    },
+    {
+      "speaker": "Pierre Ferragu (Analyst)",
+      "text": "Vaibhav, regarding the energy storage business: gross margins have been very strong. Can we expect the energy segment to become a larger contributor to operating profit over the next few quarters?"
+    },
+    {
+      "speaker": "Vaibhav Taneja (CFO)",
+      "text": "Yes, Pierre. The energy storage segment has been a major highlight. Gross margins in energy are indeed higher than automotive right now, thanks to favorable contract mix and high cell utilization. As we ramp production at our Lathrop Megafactory, we expect energy storage to become a material contributor to our bottom line. We are very optimistic about this segment."
+    }
+  ]
+}

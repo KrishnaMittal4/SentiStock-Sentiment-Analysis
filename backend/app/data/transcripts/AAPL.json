@@ -1,0 +1,33 @@
+{
+  "symbol": "AAPL",
+  "company_name": "Apple Inc.",
+  "quarter": "Q3",
+  "year": 2026,
+  "date": "2026-07-30",
+  "content": [
+    {
+      "speaker": "Tim Cook (CEO)",
+      "text": "Good afternoon, everyone. Today we are pleased to report another record quarter for Apple. We saw strong demand across our entire product line, led by iPhone 16 sales. Services revenue reached an all-time high, driven by Apple Music, iCloud, and App Store subscriptions. Our gross margin remained robust at 45.5%, reflecting strong product mix and execution. We are also incredibly excited about the upcoming release of Apple Intelligence, which will bring powerful, personalized AI models to our users while maintaining our industry-leading privacy standards. We believe this represents a major step forward for personal computing."
+    },
+    {
+      "speaker": "Luca Maestri (CFO)",
+      "text": "Thank you, Tim. Moving on to our financial details. Revenue for the quarter was $85.8 billion, up 5% year-over-year. International sales accounted for 58% of the quarter's revenue. Our operating cash flow was incredibly strong at $28.9 billion, and we returned over $24 billion to shareholders through share buybacks and dividends. For the next quarter, we expect revenue growth to accelerate slightly, and gross margin is projected to be between 45.0% and 46.0%. However, we are mindful of foreign exchange headwinds which could impact our top line by approximately 200 basis points. In spite of these macroeconomic headwinds, we remain confident in our long-term growth trajectory."
+    },
+    {
+      "speaker": "Toni Sacconaghi (Analyst)",
+      "text": "Can you speak more about the initial feedback you are seeing from Apple Intelligence developers, and how you see that translating into hardware upgrade cycles over the next year?"
+    },
+    {
+      "speaker": "Tim Cook (CEO)",
+      "text": "Thanks, Toni. While it is early days, the developer feedback has been extremely positive. Developers are leveraging our on-device models to create incredibly fast and responsive experiences. Regarding upgrade cycles, we believe that the unique features of Apple Intelligence, combined with our silicon advantages, will provide a compelling reason for users to upgrade. It is a multi-year journey, but we are off to an outstanding start."
+    },
+    {
+      "speaker": "Wamsi Mohan (Analyst)",
+      "text": "Gross margins have been very strong. Are you seeing any pressure from rising component costs or supply chain issues that might impact margins in the upcoming holiday quarter?"
+    },
+    {
+      "speaker": "Luca Maestri (CFO)",
+      "text": "Wamsi, gross margins have indeed been a highlight, thanks to a mix of higher services revenue and favorable product mix. Component costs have been relatively stable, though we monitor memory prices closely. Our supply chain continues to perform exceptionally well, and we do not expect any major disruptions. We are comfortable with our guidance range."
+    }
+  ]
+}

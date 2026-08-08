@@ -1,0 +1,351 @@
+/* ============================================================
+   SentiStock AI — Charts (charts.css)
+   Chart containers, ECharts overrides, legends, and
+   responsive chart sizing
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   Chart Container — Base
+   ---------------------------------------------------------- */
+.chart-container {
+  position: relative;
+  width: 100%;
+  min-height: 100px;
+}
+
+/* Ensure canvas/div children fill the container */
+.chart-container canvas,
+.chart-container div {
+  width: 100% !important;
+}
+
+/* ----------------------------------------------------------
+   Chart Height Variants
+   ---------------------------------------------------------- */
+.chart-sm { height: 200px; }
+.chart-md { height: 300px; }
+.chart-lg { height: 400px; }
+.chart-xl { height: 500px; }
+
+/* ----------------------------------------------------------
+   Chart Header
+   Title + controls (time range, dropdown, etc.)
+   ---------------------------------------------------------- */
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.chart-title {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chart-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ----------------------------------------------------------
+   Chart Legend
+   ---------------------------------------------------------- */
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-xs);
+  margin-top: var(--space-3);
+}
+
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text-secondary);
+  cursor: default;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot.bullish  { background-color: var(--color-bullish); }
+.legend-dot.bearish  { background-color: var(--color-bearish); }
+.legend-dot.neutral  { background-color: var(--color-neutral); }
+.legend-dot.accent   { background-color: var(--color-accent); }
+
+.legend-label {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------
+   Chart Loading Overlay
+   ---------------------------------------------------------- */
+.chart-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 25%,
+    var(--bg-hover) 50%,
+    var(--bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--radius-lg);
+  animation: shimmer 1.5s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.chart-loading-text {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ----------------------------------------------------------
+   Gauge Container
+   For semicircular / radial gauge charts
+   ---------------------------------------------------------- */
+.gauge-container {
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.gauge-container .chart-container {
+  height: 100%;
+}
+
+/* ----------------------------------------------------------
+   Price Chart Container
+   Full-width price/candlestick chart
+   ---------------------------------------------------------- */
+.price-chart-container {
+  width: 100%;
+  height: 400px;
+  position: relative;
+}
+
+/* ----------------------------------------------------------
+   ECharts Tooltip Overrides
+   ECharts generates tooltip divs with inline styles,
+   so we use !important where necessary to match our theme
+   ---------------------------------------------------------- */
+
+/* Target the ECharts tooltip wrapper */
+div[class*='echarts-tooltip'],
+.echarts-tooltip {
+  background-color: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  padding: var(--space-3) var(--space-4) !important;
+  font-family: var(--font-body) !important;
+  font-size: var(--text-xs) !important;
+  color: var(--text-primary) !important;
+  line-height: 1.6 !important;
+  pointer-events: none !important;
+}
+
+/* Tooltip title / header line */
+.echarts-tooltip .tooltip-title,
+.echarts-tooltip-title {
+  font-weight: 600 !important;
+  margin-bottom: 4px !important;
+  color: var(--text-primary) !important;
+}
+
+/* Tooltip value lines */
+.echarts-tooltip .tooltip-value {
+  font-family: var(--font-mono) !important;
+  font-variant-numeric: tabular-nums !important;
+  font-weight: 500 !important;
+}
+
+/* ECharts tooltip marker dots */
+.echarts-tooltip .echarts-tooltip__marker,
+.echarts-tooltip span[style*='border-radius:10px'] {
+  border-radius: 50% !important;
+  width: 8px !important;
+  height: 8px !important;
+  display: inline-block !important;
+}
+
+/* ----------------------------------------------------------
+   Chart Axis Styles (ECharts)
+   These won't affect ECharts directly (it renders to canvas),
+   but serve as reference for programmatic axis config
+   ---------------------------------------------------------- */
+.chart-axis-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* ----------------------------------------------------------
+   Mini Chart (inline sparkline container)
+   ---------------------------------------------------------- */
+.mini-chart {
+  position: relative;
+  width: 100%;
+  height: 60px;
+}
+
+/* ----------------------------------------------------------
+   Chart Annotation / Watermark
+   ---------------------------------------------------------- */
+.chart-watermark {
+  position: absolute;
+  bottom: var(--space-2);
+  right: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  opacity: 0.4;
+  font-family: var(--font-mono);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ----------------------------------------------------------
+   Chart No-Data State
+   ---------------------------------------------------------- */
+.chart-no-data {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  gap: var(--space-2);
+}
+
+.chart-no-data-icon {
+  width: 32px;
+  height: 32px;
+  opacity: 0.4;
+}
+
+/* ----------------------------------------------------------
+   Responsive Chart Sizing
+   ---------------------------------------------------------- */
+@media (max-width: 1200px) {
+  .chart-xl { height: 420px; }
+  .chart-lg { height: 340px; }
+
+  .price-chart-container {
+    height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-sm { height: 160px; }
+  .chart-md { height: 220px; }
+  .chart-lg { height: 280px; }
+  .chart-xl { height: 340px; }
+
+  .price-chart-container {
+    height: 280px;
+  }
+
+  .gauge-container {
+    aspect-ratio: auto;
+    height: 160px;
+  }
+
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .chart-legend {
+    gap: var(--space-3);
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-sm { height: 140px; }
+  .chart-md { height: 180px; }
+  .chart-lg { height: 240px; }
+  .chart-xl { height: 280px; }
+
+  .price-chart-container {
+    height: 220px;
+  }
+}
+
+/* ----------------------------------------------------------
+   Chart No-Data & Error Overlays
+   ---------------------------------------------------------- */
+.chart-no-data-overlay,
+.chart-error-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-card, rgba(15, 23, 42, 0.85));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: var(--radius-lg, 8px);
+  padding: var(--space-4);
+  text-align: center;
+  z-index: 5;
+}
+
+.chart-no-data-overlay .overlay-icon,
+.chart-error-overlay .overlay-icon {
+  font-size: 2rem;
+  margin-bottom: var(--space-2);
+}
+
+.chart-no-data-overlay .overlay-title,
+.chart-error-overlay .overlay-title {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-primary, #f8fafc);
+  margin-bottom: 4px;
+}
+
+.chart-no-data-overlay .overlay-message,
+.chart-error-overlay .overlay-message {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted, #94a3b8);
+  max-width: 80%;
+  line-height: 1.4;
+}
+
+.chart-error-overlay {
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.chart-error-overlay .overlay-title {
+  color: #ef4444;
+}
+

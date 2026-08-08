@@ -1,0 +1,454 @@
+/* ============================================================
+   SentiStock AI — Base Styles (base.css)
+   Modern reset, font loading, global element styles
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   Font Loading — Google Fonts & Geist Mono
+   ---------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/style.css');
+@import url('https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-mono/style.css');
+
+/* ----------------------------------------------------------
+   Modern CSS Reset
+   ---------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove default list styles */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Prevent font size inflation on mobile */
+html {
+  -moz-text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  scroll-behavior: smooth;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Set core body defaults */
+body {
+  min-height: 100vh;
+  line-height: 1.6;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Remove built-in form typography styles */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Avoid text overflows */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* Remove default button styles */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* Anchor defaults */
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+/* Media defaults */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Table defaults */
+table {
+  border-collapse: collapse;
+}
+
+/* ----------------------------------------------------------
+   Smooth Theme Transitions
+   Transitioning background, text, and border colors
+   for a polished theme toggle experience
+   ---------------------------------------------------------- */
+body,
+.card,
+.top-nav,
+.market-strip,
+.search-input,
+.dropdown,
+.news-item,
+.metric-card,
+.tooltip,
+.btn,
+.table th,
+.table td,
+.time-range-btn,
+.stat-row {
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base),
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+/* ----------------------------------------------------------
+   Custom Scrollbar
+   ---------------------------------------------------------- */
+/* Webkit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* ----------------------------------------------------------
+   Selection Styling
+   ---------------------------------------------------------- */
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-text);
+}
+
+::-moz-selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-text);
+}
+
+/* ----------------------------------------------------------
+   Skip to Content — Accessibility
+   Visually hidden until focused
+   ---------------------------------------------------------- */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: var(--space-4);
+  z-index: calc(var(--z-nav) + 10);
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-accent);
+  color: #ffffff;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  opacity: 0;
+  transition: top var(--transition-fast), opacity var(--transition-fast);
+}
+
+.skip-to-content:focus {
+  top: var(--space-2);
+  opacity: 1;
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------
+   Tabular Numerals
+   Monospaced digits for data-heavy elements
+   ---------------------------------------------------------- */
+.numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----------------------------------------------------------
+   Screen Reader Only Utility
+   ---------------------------------------------------------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ----------------------------------------------------------
+   General Typography Helpers
+   ---------------------------------------------------------- */
+.text-xs   { font-size: var(--text-xs); }
+.text-sm   { font-size: var(--text-sm); }
+.text-base { font-size: var(--text-base); }
+.text-lg   { font-size: var(--text-lg); }
+.text-xl   { font-size: var(--text-xl); }
+.text-2xl  { font-size: var(--text-2xl); }
+.text-3xl  { font-size: var(--text-3xl); }
+.text-4xl  { font-size: var(--text-4xl); }
+
+.font-display { font-family: var(--font-display); }
+.font-body    { font-family: var(--font-body); }
+.font-mono    { font-family: var(--font-mono); }
+
+.text-primary   { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted     { color: var(--text-muted); }
+.text-bullish   { color: var(--color-bullish); }
+.text-bearish   { color: var(--color-bearish); }
+.text-neutral   { color: var(--color-neutral); }
+.text-accent    { color: var(--color-accent); }
+
+.font-weight-400 { font-weight: 400; }
+.font-weight-500 { font-weight: 500; }
+.font-weight-600 { font-weight: 600; }
+.font-weight-700 { font-weight: 700; }
+
+/* ----------------------------------------------------------
+   Micro-animations & Transitions
+   ---------------------------------------------------------- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(6, 182, 212, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(6, 182, 212, 0);
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes widgetPulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.55; }
+  100% { opacity: 1; }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 2.5s infinite;
+}
+
+.animate-float {
+  animation: float 2.5s ease-in-out infinite;
+}
+
+.widget-loading-pulse {
+  animation: widgetPulse 1.2s ease-in-out infinite;
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+
+/* ----------------------------------------------------------
+   Loading Skeletons (Global Shimmer)
+   ---------------------------------------------------------- */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(6, 182, 212, 0.12) 37%,
+    rgba(255, 255, 255, 0.03) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+.skeleton-text {
+  height: 14px;
+  width: 100%;
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+
+.skeleton-title {
+  height: 22px;
+  width: 65%;
+  margin-bottom: 12px;
+  border-radius: 4px;
+}
+
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.skeleton-card {
+  height: 140px;
+  width: 100%;
+  border-radius: var(--radius-lg);
+}
+
+/* ----------------------------------------------------------
+   Error Cards (Global Component)
+   ---------------------------------------------------------- */
+.error-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  gap: var(--space-3);
+  transition: all var(--transition-base);
+}
+
+.error-card-icon {
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--color-bearish);
+  filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.4));
+}
+
+.error-card-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.error-card-message {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  max-width: 480px;
+  line-height: 1.5;
+}
+
+.error-card-actions {
+  margin-top: var(--space-2);
+  display: flex;
+  gap: var(--space-3);
+}
+
+.btn-retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-retry:hover {
+  background: rgba(239, 68, 68, 0.28);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
