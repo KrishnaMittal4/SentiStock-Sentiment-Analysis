@@ -48,11 +48,15 @@ class Settings(BaseSettings):
     news_cache_seconds: int = int(os.getenv("NEWS_CACHE_SECONDS", "600"))
 
     # --- Sentiment model ------------------------------------------------
-    # ProsusAI/finbert is a BERT model fine-tuned on financial text —
-    # this is the real NLP model the frontend's marketing copy always
-    # claimed to use. Swap to a distilled model here if inference is
-    # too slow on CPU-only hardware.
-    sentiment_model_name: str = os.getenv("SENTIMENT_MODEL_NAME", "ProsusAI/finbert")
+    # Default: mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis
+    # ~90 MB vs ProsusAI/finbert's 440 MB — finance-domain trained on financial
+    # news headlines so it's more accurate than generic SST-2 distilbert for
+    # stock sentiment, while still fitting comfortably in Render's free-tier RAM.
+    # Override via SENTIMENT_MODEL_NAME env var if you want full FinBERT locally.
+    sentiment_model_name: str = os.getenv(
+        "SENTIMENT_MODEL_NAME",
+        "mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis",
+    )
 
     # --- AI market brief (Groq) ------------------------------------------
     # Separate from FinBERT on purpose: FinBERT classifies individual
@@ -62,7 +66,7 @@ class Settings(BaseSettings):
     # fast enough to call live, and does a solid job of not overreaching
     # on data it's actually given.
     groq_api_key: str = os.getenv("GROQ_API_KEY", "")
-    groq_model_name: str = os.getenv("GROQ_MODEL_NAME", "llama-3.3-70b-versatile")
+    groq_model_name: str = os.getenv("GROQ_MODEL_NAME", "qwen/qwen3.8-27b")
     insight_cache_seconds: int = int(os.getenv("INSIGHT_CACHE_SECONDS", "1800"))
 
     # --- HTTP & Retry Configuration ---------------------------------------

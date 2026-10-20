@@ -3,12 +3,18 @@ services:
     name: sentistock-backend
     runtime: python
     rootDir: backend
-    # Install CPU-only PyTorch first (saves ~2GB vs the full CUDA build),
+    # Install CPU-only PyTorch first (saves ~1.8 GB vs the full CUDA build),
     # then install the rest of the dependencies.
     buildCommand: >
-      pip install torch --index-url https://download.pytorch.org/whl/cpu &&
+      pip install "torch>=2.2.0" --index-url https://download.pytorch.org/whl/cpu &&
       pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # 1 GB persistent disk — HuggingFace model weights are cached here so
+    # they are NOT re-downloaded on every cold start / redeploy.
+    disk:
+      name: hf-model-cache
+      mountPath: /opt/render/project/src/.cache/huggingface
+      sizeGB: 1
     envVars:
       - key: FINNHUB_API_KEY
         sync: false          # Set manually in Render dashboard
@@ -18,10 +24,15 @@ services:
         value: sqlite:///./sentistock.db
       - key: CORS_ORIGINS
         value: https://sentistock-sentiment-analysis.vercel.app,https://krishnamittal4.github.io,http://localhost:3000,http://127.0.0.1:3000,http://localhost:5500,http://127.0.0.1:5500
-      # distilbert is ~70 MB vs FinBERT's 440 MB — fits in Render's 512 MB free tier.
-      # Labels map to POSITIVE/NEGATIVE which sentiment_service.py handles.
+      # Finance-domain DistilRoBERTa (~90 MB) — better than generic SST-2 for
+      # stock news, and 350 MB smaller than full ProsusAI/finbert (440 MB).
       - key: SENTIMENT_MODEL_NAME
-        value: distilbert-base-uncased-finetuned-sst-2-english
+        value: mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis
+      # Point HuggingFace cache to the persistent disk mounted above.
+      - key: TRANSFORMERS_CACHE
+        value: /opt/render/project/src/.cache/huggingface
+      - key: HF_HOME
+        value: /opt/render/project/src/.cache/huggingface
       - key: QUOTE_CACHE_SECONDS
         value: 30
       - key: HISTORY_CACHE_SECONDS
