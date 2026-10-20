@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Environment / secrets — NEVER commit these
+backend/.env
+.env
+
+# Database (local dev only)
+backend/sentistock.db
+*.db
+*.sqlite3
+
+# ML model cache (downloaded at runtime by Hugging Face)
+backend/app/data/
+*.cache
+
+# Node / frontend build artifacts
+node_modules/
+.next/
+.vercel/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp

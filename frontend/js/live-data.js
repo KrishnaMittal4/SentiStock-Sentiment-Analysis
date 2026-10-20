@@ -544,8 +544,12 @@ window.LiveData = {
   async showGate() {
     this.loadStoredBackendUrl();
 
+    // If a production backend URL is set in config.js, prioritise it.
+    const configUrl = (window.SENTISTOCK_CONFIG && window.SENTISTOCK_CONFIG.BACKEND_URL) || '';
+
     const host = (window.location && window.location.hostname) || '127.0.0.1';
     const candidates = [
+      configUrl,
       this.BASE_URL,
       `http://${host}:8000/api`,
       'http://127.0.0.1:8000/api',

@@ -1,53 +1,18 @@
-# Version pins use >= instead of == on purpose: exact pins go stale fast
-# (PyPI drops old wheels for newer Python releases), which is what caused
-# the "no matching distribution" errors earlier. >= lets pip grab whatever
-# current build is compatible with your Python version instead of failing
-# outright. If you ever need a fully reproducible/locked environment (e.g.
-# for deployment), run `pip freeze > requirements.lock.txt` once things
-# are working and commit that instead.
-
-# --- Web framework ---------------------------------------------------
+# This file mirrors the root requirements.txt for Render deployment.
+# Render sets rootDir=backend, so it needs requirements.txt here.
 fastapi>=0.115.0
 uvicorn[standard]>=0.34.0
 pydantic>=2.10.0
 pydantic-settings>=2.7.0
-
-# --- HTTP client -------------------------------------------------------
 httpx>=0.28.0
-
-# --- Database ----------------------------------------------------------
 sqlalchemy>=2.0.30
-# psycopg2-binary is only needed if you switch DATABASE_URL to Postgres
-# (see .env.example). Not required for the default SQLite setup — SQLite
-# support is built into Python already. Uncomment if/when you switch:
-# psycopg2-binary>=2.9.9
-
-# --- Market data ---------------------------------------------------------
 yfinance>=0.2.40
-
-# --- Technical indicators ------------------------------------------------
-# Commented out by default: TA-Lib needs its C library compiled first
-# (see README.md), which is a common source of install failures,
-# especially on Windows. indicators_service.py automatically falls back
-# to an equivalent pure-pandas implementation if this isn't installed —
-# uncomment the line below only if you've installed the system library
-# (brew/apt/conda) and want the real TA-Lib engine instead of the fallback.
-# TA-Lib>=0.4.28
-
-# --- ML / sentiment (FinBERT) --------------------------------------------
-# CPU-only torch is much smaller/faster to install than the default CUDA
-# build if you don't have an NVIDIA GPU:
-#   pip install torch --index-url https://download.pytorch.org/whl/cpu
-# then `pip install -r requirements.txt` again for the rest.
 torch>=2.6.0
 transformers>=4.47.0
-
-# --- ML / Price Movement Prediction ---------------------------------------
 scikit-learn>=1.4.0
 xgboost>=2.0.0
 lightgbm>=4.0.0
-
-# --- Data handling -------------------------------------------------------
 pandas>=2.2.0
 numpy>=1.26.0
-
+groq>=0.13.0
+reportlab>=4.0.0

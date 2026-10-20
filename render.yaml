@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: sentistock-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: FINNHUB_API_KEY
+        sync: false          # Set manually in Render dashboard
+      - key: GROQ_API_KEY
+        sync: false          # Set manually in Render dashboard
+      - key: DATABASE_URL
+        value: sqlite:///./sentistock.db
+      - key: CORS_ORIGINS
+        value: https://sentistock-sentiment-analysis.vercel.app,https://krishnamittal4.github.io,http://localhost:3000,http://127.0.0.1:3000,http://localhost:5500,http://127.0.0.1:5500
+      - key: SENTIMENT_MODEL_NAME
+        value: ProsusAI/finbert
+      - key: QUOTE_CACHE_SECONDS
+        value: 30
+      - key: HISTORY_CACHE_SECONDS
+        value: 3600
+      - key: NEWS_CACHE_SECONDS
+        value: 600
