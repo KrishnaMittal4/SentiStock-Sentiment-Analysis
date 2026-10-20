@@ -1,5 +1,6 @@
-# This file mirrors the root requirements.txt for Render deployment.
-# Render sets rootDir=backend, so it needs requirements.txt here.
+# This file is used by Render (rootDir=backend).
+# CPU-only torch is installed first via the build command in render.yaml
+# to keep the install size small enough for Render's free tier.
 fastapi>=0.115.0
 uvicorn[standard]>=0.34.0
 pydantic>=2.10.0
@@ -7,6 +8,7 @@ pydantic-settings>=2.7.0
 httpx>=0.28.0
 sqlalchemy>=2.0.30
 yfinance>=0.2.40
+# torch is installed separately via build command (CPU-only wheel)
 torch>=2.6.0
 transformers>=4.47.0
 scikit-learn>=1.4.0
