@@ -100,18 +100,23 @@ async def insight(symbol: str, db: Session = Depends(get_db)):
     except FinnhubError:
         news = {"articles": [], "daily_sentiment": []}
 
+    model_used = settings.groq_model_name
     try:
         brief = await run_in_threadpool(
             groq_service.generate_brief,
             symbol, quote, indicators, news["daily_sentiment"], news["articles"]
         )
     except GroqError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
+        logger.info(f"[InsightRouter] Groq unavailable ({exc}). Using intelligent fallback brief.")
+        brief = groq_service.generate_fallback_brief(
+            symbol, quote, indicators, news["daily_sentiment"], news["articles"]
+        )
+        model_used = "SentiStock Algorithmic Synthesis"
 
     response = {
         "symbol": symbol,
         "brief": brief,
-        "model": settings.groq_model_name,
+        "model": model_used,
         "generated_at": dt.datetime.utcnow().isoformat() + "Z",
     }
     set_cached_item(db, cache_key, response)

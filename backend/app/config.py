@@ -48,14 +48,11 @@ class Settings(BaseSettings):
     news_cache_seconds: int = int(os.getenv("NEWS_CACHE_SECONDS", "600"))
 
     # --- AI market brief (Groq) ------------------------------------------
-    # Separate from FinBERT on purpose: FinBERT classifies individual
-    # headlines, Groq synthesizes quote + indicators + sentiment + news
-    # into one readable paragraph. Free tier at console.groq.com — no
-    # credit card needed. llama-3.3-70b-versatile is a good default:
-    # fast enough to call live, and does a solid job of not overreaching
-    # on data it's actually given.
+    # Synthesizes quote + indicators + VADER sentiment + news into one
+    # coherent explanation. Free tier at console.groq.com — no credit card needed.
+    # llama-3.3-70b-versatile is fast, reliable, and free.
     groq_api_key: str = os.getenv("GROQ_API_KEY", "")
-    groq_model_name: str = os.getenv("GROQ_MODEL_NAME", "qwen/qwen3.8-27b")
+    groq_model_name: str = os.getenv("GROQ_MODEL_NAME", "llama-3.3-70b-versatile")
     insight_cache_seconds: int = int(os.getenv("INSIGHT_CACHE_SECONDS", "1800"))
 
     # --- HTTP & Retry Configuration ---------------------------------------

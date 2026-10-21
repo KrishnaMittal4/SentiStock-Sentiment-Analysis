@@ -103,7 +103,7 @@ def _build_user_prompt(
         lines.append("No recent sentiment data available.")
 
     if articles:
-        lines.append("Recent headlines (with FinBERT sentiment label):")
+        lines.append("Recent headlines (with sentiment label):")
         for a in articles[:8]:
             label = a.get("sentiment_label", "neutral")
             headline = a.get("headline", "")
@@ -116,6 +116,58 @@ def _build_user_prompt(
 
 from ..logging_config import logger
 from ..utils.http_client import execute_with_retry
+
+
+def generate_fallback_brief(
+    symbol: str,
+    quote: dict[str, Any],
+    indicators: Optional[dict[str, Any]],
+    daily_sentiment: list[dict[str, Any]],
+    articles: list[dict[str, Any]],
+) -> str:
+    """
+    Algorithmic financial brief used when GROQ_API_KEY is not provided
+    or if Groq rate limits are reached, ensuring zero UI downtime.
+    """
+    price_str = f"${quote.get('price', 0):.2f}"
+    change_pct = quote.get("change_pct", 0)
+    direction = "up" if change_pct >= 0 else "down"
+
+    avg_score = 0.0
+    if daily_sentiment:
+        scores = [d.get("score", 0.0) for d in daily_sentiment if "score" in d]
+        if scores:
+            avg_score = sum(scores) / len(scores)
+
+    sentiment_desc = "bullish" if avg_score > 0.08 else ("bearish" if avg_score < -0.08 else "neutral")
+
+    tech_desc = []
+    if indicators:
+        rsi = indicators.get("rsi_14")
+        if rsi is not None:
+            if rsi > 70:
+                tech_desc.append("overbought momentum (RSI > 70)")
+            elif rsi < 30:
+                tech_desc.append("oversold momentum (RSI < 30)")
+            else:
+                tech_desc.append(f"neutral RSI momentum ({rsi:.1f})")
+
+        sma20 = indicators.get("sma_20")
+        price = quote.get("price", 0)
+        if sma20 and price:
+            if price > sma20:
+                tech_desc.append("holding above its 20-day SMA")
+            else:
+                tech_desc.append("trading below its 20-day SMA")
+
+    tech_summary = ", while ".join(tech_desc) if tech_desc else "with momentum consolidating"
+    article_count = len(articles)
+
+    return (
+        f"{symbol} is trading at {price_str}, {direction} {abs(change_pct):.2f}% on the session. "
+        f"News sentiment synthesized across {article_count} headlines is currently {sentiment_desc} "
+        f"(composite score: {avg_score:+.2f}). Technicals show {tech_summary}."
+    )
 
 
 def generate_brief(
@@ -155,3 +207,4 @@ def generate_brief(
         logger.error(f"[GroqService] Groq returned an empty response for {symbol}")
         raise GroqError("Groq returned an empty response")
     return text.strip()
+
