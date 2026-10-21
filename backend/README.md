@@ -3,9 +3,9 @@
 FastAPI backend that replaces "browser calls Finnhub directly with a
 key the user pastes in" with a real server: it owns the Finnhub key,
 pulls historical prices from `yfinance` (fixing the free-tier 403 on
-Finnhub's `/stock/candle`), computes technical indicators with TA-Lib,
-and scores news sentiment with a real FinBERT model via PyTorch —
-caching everything in Postgres so you're not re-hitting Finnhub/Yahoo
+Finnhub's `/stock/candle`), computes technical indicators with TA-Lib/pandas,
+and scores news sentiment with an optimized VADER+Financial Lexicon engine —
+caching everything in SQLite/Postgres so you're not re-hitting Finnhub/Yahoo
 on every page load.
 
 ## Architecture
@@ -14,9 +14,9 @@ on every page load.
 Market data      -> Finnhub (/quote)
 Historical data  -> yfinance
 News             -> Finnhub (/company-news)
-Sentiment        -> FinBERT (ProsusAI/finbert) via transformers + torch
+Sentiment        -> VADER + Financial Lexicon (nltk)
 Indicators       -> TA-Lib (falls back to pure pandas if not installed)
-Database         -> PostgreSQL (SQLAlchemy)
+Database         -> PostgreSQL / SQLite (SQLAlchemy)
 Backend          -> FastAPI
 ```
 
