@@ -170,7 +170,7 @@
           </div>
           <div class="widget-value numeric" id="w-news-value">—</div>
           <div class="widget-footer">
-            <span class="widget-subtext" id="w-news-sub">FinBERT NLP</span>
+            <span class="widget-subtext" id="w-news-sub">VADER NLP</span>
             <span class="widget-badge badge-neutral" id="w-news-badge">Analyzing</span>
           </div>
         </div>
@@ -274,7 +274,7 @@
           </div>
           <div class="widget-value numeric" id="w-confidence-value">—</div>
           <div class="widget-footer">
-            <span class="widget-subtext" id="w-confidence-sub">FinBERT & ML</span>
+            <span class="widget-subtext" id="w-confidence-sub">NLP &amp; ML</span>
             <span class="widget-badge badge-neutral" id="w-confidence-badge">—</span>
           </div>
         </div>
@@ -565,7 +565,7 @@
           <div class="metric-content">
             <span class="metric-value numeric" id="model-confidence">—</span>
             <span class="metric-label">Model confidence</span>
-            <span class="metric-sublabel" id="model-confidence-caption">FinBERT NLP</span>
+            <span class="metric-sublabel" id="model-confidence-caption">VADER NLP</span>
           </div>
         </div>
       </div>
@@ -600,7 +600,7 @@
             <div class="metric-content">
               <span class="metric-value numeric" id="mmi-news-score">—</span>
               <span class="metric-label">News sentiment score</span>
-              <span class="metric-sublabel" id="mmi-news-caption">FinBERT NLP</span>
+              <span class="metric-sublabel" id="mmi-news-caption">VADER NLP</span>
             </div>
           </div>
 
@@ -724,7 +724,7 @@
     <!-- === SECTION 3: News Sentiment Feed === -->
     <section class="section" aria-label="News sentiment analysis">
       <h2 class="section-title">Financial news sentiment analysis</h2>
-      <p class="section-subtitle">Real-time media tracking powered by FinBERT (BERT fine-tuned on financial text), run server-side on the FastAPI backend.</p>
+      <p class="section-subtitle">Real-time media tracking powered by VADER + Financial Lexicon, run server-side on the FastAPI backend.</p>
       <div class="two-col-grid two-col-wide-left">
         <!-- News Feed -->
         <div class="card">
@@ -782,7 +782,7 @@
     <!-- === SECTION 3.5: Reddit Sentiment Analysis === -->
     <section class="section" aria-label="Reddit sentiment analysis">
       <h2 class="section-title">Reddit sentiment &amp; trending discussions</h2>
-      <p class="section-subtitle">Real-time social sentiment extraction across r/stocks, r/investing, and r/wallstreetbets using FinBERT NLP on post titles and bodies.</p>
+      <p class="section-subtitle">Real-time social sentiment extraction across r/stocks, r/investing, and r/wallstreetbets using VADER NLP on post titles and bodies.</p>
       
       <!-- Top Metrics Bar for Reddit & Merged Sentiment -->
       <div class="stats-column" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4);">
@@ -809,7 +809,7 @@
           <div class="metric-content">
             <span class="metric-value numeric" id="reddit-confidence">—</span>
             <span class="metric-label">Model confidence</span>
-            <span class="metric-sublabel">FinBERT Probability</span>
+            <span class="metric-sublabel">Model Confidence</span>
           </div>
         </div>
 
@@ -829,7 +829,7 @@
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">Trending discussions</h2>
-            <span class="badge badge-neutral">FinBERT Scored</span>
+            <span class="badge badge-neutral">VADER Scored</span>
           </div>
           <div class="news-feed" id="reddit-feed" role="feed" aria-label="Reddit trending discussions">
             <div class="skeleton skeleton-news" aria-hidden="true">
@@ -902,7 +902,7 @@
     <section class="section" aria-label="Earnings call transcript analysis">
 
       <h2 class="section-title">Earnings call transcript analysis</h2>
-      <p class="section-subtitle">Real-time sentiment extraction from verbatim earnings call transcript segments using FinBERT chunk classification.</p>
+      <p class="section-subtitle">Real-time sentiment extraction from verbatim earnings call transcript segments using financial NLP classification.</p>
       
       <div class="earnings-layout">
         <!-- Left: Overview Card -->
@@ -1134,7 +1134,7 @@
         <span class="footer-copy">AI-powered market sentiment analysis</span>
       </div>
       <div class="footer-right">
-        <span class="footer-note">Powered by a FastAPI backend — Finnhub, yfinance &amp; FinBERT</span>
+        <span class="footer-note">Powered by a FastAPI backend — Finnhub, yfinance, VADER &amp; Groq AI</span>
         <span class="footer-divider" aria-hidden="true">·</span>
         <a href="#" class="footer-link">Privacy policy</a>
         <a href="#" class="footer-link">Terms of service</a>

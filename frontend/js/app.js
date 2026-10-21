@@ -196,7 +196,7 @@
           wNewsVal.style.color = score >= 0.15 ? 'var(--color-bullish)' : score <= -0.15 ? 'var(--color-bearish)' : 'var(--color-neutral)';
         }
         if (wNewsSub) {
-          wNewsSub.textContent = `${summary.volume || 0} Articles FinBERT Scored`;
+          wNewsSub.textContent = `${summary.volume || 0} Articles Scored`;
         }
         if (wNewsBadge) {
           wNewsBadge.textContent = summary.marketMood || 'Neutral';
@@ -235,7 +235,7 @@
       const transcriptCache = window.SentimentData?.TRANSCRIPT_DATA?.[ticker];
       if (transcriptCache && transcriptCache.quarter) {
         const tScore = transcriptCache.sentiment_label || 'Neutral';
-        const tConf = transcriptCache.avg_confidence != null ? `${Math.round(transcriptCache.avg_confidence * 100)}% Conf` : 'FinBERT';
+        const tConf = transcriptCache.avg_confidence != null ? `${Math.round(transcriptCache.avg_confidence * 100)}% Conf` : 'NLP Engine';
         if (wTransVal) wTransVal.textContent = tScore.charAt(0).toUpperCase() + tScore.slice(1);
         if (wTransSub) wTransSub.textContent = `${transcriptCache.quarter || 'Q1'} ${transcriptCache.year || 2026} Earnings Call`;
         if (wTransBadge) {
@@ -363,7 +363,7 @@
       if (summary) {
         const cPct = Math.round((summary.confidence || 0.8) * 100);
         if (wConfVal) wConfVal.textContent = `${cPct}%`;
-        if (wConfSub) wConfSub.textContent = `FinBERT & TA Signal Fit`;
+        if (wConfSub) wConfSub.textContent = `NLP & TA Signal Fit`;
         if (wConfBadge) {
           wConfBadge.textContent = cPct >= 70 ? 'High' : cPct >= 50 ? 'Medium' : 'Low';
           wConfBadge.className = `widget-badge ${cPct >= 70 ? 'badge-positive' : cPct >= 50 ? 'badge-neutral' : 'badge-negative'}`;
@@ -734,7 +734,7 @@
         const confidenceCaption = document.getElementById('model-confidence-caption');
         if (confidenceCaption) {
           confidenceCaption.textContent = summary.confidenceIsReal
-            ? 'FinBERT NLP'
+            ? 'VADER + Finance NLP'
             : 'Estimated from coverage volume';
         }
       }
