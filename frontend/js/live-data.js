@@ -40,18 +40,25 @@ window.LiveData = {
   /*  Backend URL management (swap in a deployed URL in production) */
   /* ------------------------------------------------------------ */
   setBackendUrl(url, remember = true) {
-    this.BASE_URL = (url || '').replace(/\s+/g, '').replace(/\/+$/, '');
+    let clean = (url || '').replace(/\s+/g, '').replace(/\/+$/, '');
+    if (clean && !clean.endsWith('/api')) {
+      clean += '/api';
+    }
+    this.BASE_URL = clean;
     if (remember && this.BASE_URL) {
       try { localStorage.setItem(this.BASE_URL_STORAGE_KEY, this.BASE_URL); } catch (e) { /* storage unavailable */ }
     }
   },
 
-
   loadStoredBackendUrl() {
     try {
       const stored = localStorage.getItem(this.BASE_URL_STORAGE_KEY);
       if (stored) {
-        this.BASE_URL = stored;
+        let clean = stored.replace(/\s+/g, '').replace(/\/+$/, '');
+        if (clean && !clean.endsWith('/api')) {
+          clean += '/api';
+        }
+        this.BASE_URL = clean;
         return true;
       }
     } catch (e) { /* storage unavailable */ }
@@ -89,7 +96,7 @@ window.LiveData = {
   /* ------------------------------------------------------------ */
   async _get(path) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
     try {
       const res = await fetch(this.BASE_URL + path, { signal: controller.signal });
       clearTimeout(timeoutId);

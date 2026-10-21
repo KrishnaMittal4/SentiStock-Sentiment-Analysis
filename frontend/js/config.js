@@ -6,8 +6,7 @@
    ============================================================ */
 
 window.SENTISTOCK_CONFIG = {
-  // ✅ Replace this with your Render backend URL after deploying:
-  // e.g. "https://sentistock-backend.onrender.com/api"
-  // Leave as empty string for local dev — auto-discovery handles it.
-  BACKEND_URL: "",
+  // Production Render backend URL:
+  BACKEND_URL: "https://sentistock-sentiment-analysis.onrender.com/api",
 };
+

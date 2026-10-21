@@ -97,9 +97,9 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-The first request to `/api/news/*` downloads the FinBERT model
-(~440MB) from Hugging Face and caches it locally — expect that one
-call to be slow the first time.
+The backend uses an optimized VADER + financial domain lexicon engine
+which runs in pure Python with zero heavy model downloads — sentiment
+scoring runs in milliseconds with under 50MB RAM footprint.
 
 ### 4. Configure
 
@@ -119,13 +119,12 @@ Visit `http://localhost:8000/docs` for interactive Swagger docs.
 ## Connecting the frontend
 
 Point the frontend at this backend instead of calling Finnhub
-directly — see `frontend/js/live-data.js`, where `BASE_URL` is now
-`http://localhost:8000/api` and there's no more "paste your API key"
-gate, since the backend holds the key. Serve the frontend from
-whatever static origin you listed in `CORS_ORIGINS`.
+directly — see `frontend/js/live-data.js` and `frontend/js/config.js`,
+where `BACKEND_URL` points directly at your deployed backend or localhost.
 
 ## Notes on production
 
 - Don't run with `--reload` in production; use `uvicorn app.main:app --workers 4` behind a reverse proxy, or deploy on Render/Railway/Fly.
-- FinBERT inference is the slowest part of this stack on CPU. If news requests feel sluggish, either batch fewer articles per request, run on a GPU box (`device=0` in `sentiment_service.py`), or swap in a distilled sentiment model.
+- Sentiment scoring is powered by VADER + domain-specific financial lexicon, executing in milliseconds on standard CPU free tiers.
 - The cache table (`cache_entries`) is intentionally simple (one row per key, JSON payload). If this grows past a class project, split it into typed tables per the note at the top of `app/database.py`.
+
