@@ -47,17 +47,6 @@ class Settings(BaseSettings):
     history_cache_seconds: int = int(os.getenv("HISTORY_CACHE_SECONDS", "3600"))
     news_cache_seconds: int = int(os.getenv("NEWS_CACHE_SECONDS", "600"))
 
-    # --- Sentiment model ------------------------------------------------
-    # Default: mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis
-    # ~90 MB vs ProsusAI/finbert's 440 MB — finance-domain trained on financial
-    # news headlines so it's more accurate than generic SST-2 distilbert for
-    # stock sentiment, while still fitting comfortably in Render's free-tier RAM.
-    # Override via SENTIMENT_MODEL_NAME env var if you want full FinBERT locally.
-    sentiment_model_name: str = os.getenv(
-        "SENTIMENT_MODEL_NAME",
-        "mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis",
-    )
-
     # --- AI market brief (Groq) ------------------------------------------
     # Separate from FinBERT on purpose: FinBERT classifies individual
     # headlines, Groq synthesizes quote + indicators + sentiment + news

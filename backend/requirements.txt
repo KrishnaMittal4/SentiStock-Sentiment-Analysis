@@ -8,9 +8,10 @@ pydantic-settings>=2.7.0
 httpx>=0.28.0
 sqlalchemy>=2.0.30
 yfinance>=0.2.40
-# torch is installed separately via build command (CPU-only wheel)
-torch>=2.6.0
-transformers>=4.47.0
+# torch + transformers removed — they used ~400 MB RAM at runtime which
+# exceeds Render's free-tier 512 MB limit. Sentiment is now handled by
+# vaderSentiment (pure Python, ~1 MB) with a finance keyword boost layer.
+vaderSentiment>=3.3.2
 scikit-learn>=1.4.0
 xgboost>=2.0.0
 # lightgbm removed to reduce deployment size (~15 MB saved).
