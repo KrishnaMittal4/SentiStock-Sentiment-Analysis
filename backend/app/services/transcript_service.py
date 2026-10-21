@@ -5,7 +5,7 @@ import os
 from typing import Any
 
 from ..config import get_settings
-from .sentiment_service import _get_pipeline, _label_to_signed_score
+from .sentiment_service import _score_text
 
 settings = get_settings()
 
@@ -101,43 +101,38 @@ def analyze_transcript(symbol: str) -> dict[str, Any]:
             "avg_confidence": 0.0,
         }
 
-    # Re-use the existing Hugging Face sentiment pipeline singleton from sentiment_service
-    nlp = _get_pipeline()
-    
-    # Process texts in batch for speed optimization
-    texts = [chunk["text"][:512] for chunk in raw_content]
-    predictions = nlp(texts, truncation=True)
-    
+    # Score each chunk with VADER + finance keyword boost
     scored_chunks = []
     total_score = 0.0
     total_confidence = 0.0
-    
+
     pos_count = 0
     neg_count = 0
     neu_count = 0
     total_chunks = len(raw_content)
 
-    for chunk, pred in zip(raw_content, predictions):
-        score = _label_to_signed_score(pred["label"], pred["score"])
-        label = pred["label"].lower()  # positive | negative | neutral
-        
+    for chunk in raw_content:
+        text = chunk.get("text", "")[:512]
+        score, conf = _score_text(text)
+        label = "positive" if score > 0.15 else "negative" if score < -0.15 else "neutral"
+
         if label == "positive":
             pos_count += 1
         elif label == "negative":
             neg_count += 1
         else:
             neu_count += 1
-            
+
         total_score += score
-        total_confidence += pred["score"]
-        
+        total_confidence += conf
+
         scored_chunks.append({
             "speaker": chunk.get("speaker", "Unknown"),
             "text": chunk.get("text", ""),
             "sentiment_label": label,
             "sentiment_score": score,
         })
-        
+
     avg_score = round(total_score / total_chunks, 4)
     avg_confidence = round(total_confidence / total_chunks, 4)
     

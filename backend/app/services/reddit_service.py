@@ -16,7 +16,7 @@ from typing import Any
 
 import httpx
 
-from .sentiment_service import _get_pipeline, _label_to_signed_score
+from .sentiment_service import _score_text
 
 TARGET_SUBREDDITS = ["stocks", "investing", "wallstreetbets"]
 
@@ -197,18 +197,8 @@ def analyze_reddit_sentiment(symbol: str) -> dict[str, Any]:
             "confidence": 0.0,
             "trending_discussions": [],
             "subreddits_breakdown": [],
-            "model": "ProsusAI/finbert",
+            "model": "VADER+Finance",
         }
-
-    nlp = _get_pipeline()
-
-    # Requirement: "Run FinBERT on: titles, body"
-    texts_to_score = [
-        f"{post.get('title', '')}. {post.get('body', '')}".strip()[:512]
-        for post in raw_posts
-    ]
-
-    predictions = nlp(texts_to_score, truncation=True)
 
     scored_posts = []
     signed_scores: list[float] = []
@@ -217,20 +207,18 @@ def analyze_reddit_sentiment(symbol: str) -> dict[str, Any]:
         sub: {"scores": [], "confidences": [], "count": 0} for sub in TARGET_SUBREDDITS
     }
 
-    for post, pred in zip(raw_posts, predictions):
-        raw_score = pred["score"]  # FinBERT probability (0..1)
-        raw_label = pred["label"]  # positive / negative / neutral
-        score = _label_to_signed_score(raw_label, raw_score)
-
+    for post in raw_posts:
+        text = f"{post.get('title', '')}. {post.get('body', '')}".strip()[:512]
+        score, conf = _score_text(text)
         label = "positive" if score > 0.12 else "negative" if score < -0.12 else "neutral"
 
         signed_scores.append(score)
-        confidences.append(raw_score)
+        confidences.append(conf)
 
         sub = post.get("subreddit", "stocks").lower()
         if sub in sub_data:
             sub_data[sub]["scores"].append(score)
-            sub_data[sub]["confidences"].append(raw_score)
+            sub_data[sub]["confidences"].append(conf)
             sub_data[sub]["count"] += 1
 
         post_item = {
@@ -244,11 +232,11 @@ def analyze_reddit_sentiment(symbol: str) -> dict[str, Any]:
             "date": post.get("date", ""),
             "sentiment_label": label,
             "sentiment_score": score,
-            "confidence": round(raw_score, 4),
+            "confidence": round(conf, 4),
         }
         scored_posts.append(post_item)
 
-    # Sort trending discussions by engagement (upvotes / score / comments) or absolute sentiment
+    # Sort trending discussions by engagement (upvotes + comments) then sentiment strength
     trending_discussions = sorted(
         scored_posts,
         key=lambda x: (x["score"] + x["num_comments"] * 2, abs(x["sentiment_score"])),
@@ -279,7 +267,7 @@ def analyze_reddit_sentiment(symbol: str) -> dict[str, Any]:
         "confidence": avg_confidence,
         "trending_discussions": trending_discussions,
         "subreddits_breakdown": subreddits_breakdown,
-        "model": "ProsusAI/finbert",
+        "model": "VADER+Finance",
     }
 
 
@@ -328,5 +316,5 @@ def merge_news_and_reddit_sentiment(
         "news_articles_count": news_count,
         "reddit_sentiment": round(reddit_avg_sentiment, 4),
         "reddit_posts_count": reddit_count,
-        "model": "ProsusAI/finbert",
+        "model": "VADER+Finance",
     }
