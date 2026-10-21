@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     # coherent explanation. Free tier at console.groq.com — no credit card needed.
     # llama-3.3-70b-versatile is fast, reliable, and free.
     groq_api_key: str = os.getenv("GROQ_API_KEY", "")
-    groq_model_name: str = os.getenv("GROQ_MODEL_NAME", "llama-3.3-70b-versatile")
+    groq_model_name: str = os.getenv("GROQ_MODEL_NAME", "qwen/qwen3.8-27b")
     insight_cache_seconds: int = int(os.getenv("INSIGHT_CACHE_SECONDS", "1800"))
 
     # --- HTTP & Retry Configuration ---------------------------------------

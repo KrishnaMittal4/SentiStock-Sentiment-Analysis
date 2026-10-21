@@ -12,6 +12,8 @@ services:
         sync: false          # Set manually in Render dashboard
       - key: GROQ_API_KEY
         sync: false          # Set manually in Render dashboard
+      - key: GROQ_MODEL_NAME
+        value: qwen/qwen3.8-27b
       - key: DATABASE_URL
         value: sqlite:///./sentistock.db
       - key: CORS_ORIGINS
